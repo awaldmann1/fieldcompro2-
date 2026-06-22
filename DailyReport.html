@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>FC Daily Report · Cypress Pointe Phase II</title>
+<style>
+:root {
+  --navy:#1B2A4A; --orange:#E87722; --white:#FFFFFF; --bg:#F2F4F7;
+  --border:#D1D5DB; --amber:#F59E0B; --green:#22C55E; --red:#EF4444;
+  --text:#1A1A2E; --muted:#6B7280; --nav-h:60px; --hdr-h:52px;
+  --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+#hdr{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);padding-top:var(--safe-top)}
+#hdrInner{height:var(--hdr-h);display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+.fc-mark{color:var(--orange);font-weight:800;font-size:17px;letter-spacing:-0.5px}
+.proj-sub{color:rgba(255,255,255,0.6);font-size:11px;margin-top:1px}
+#hdrRight{display:flex;align-items:center;gap:8px}
+.hdrBtn{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);color:#fff;border-radius:6px;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.hdrBtn:active{background:rgba(255,255,255,0.25)}
+#exitBtn{background:rgba(239,68,68,0.25);border-color:rgba(239,68,68,0.5)}
+#exitBtn:active{background:rgba(239,68,68,0.5)}
+
+/* TABS */
+.tab{display:none;padding-top:calc(var(--hdr-h) + var(--safe-top) + 10px);padding-bottom:calc(var(--nav-h) + var(--safe-bot) + 20px);min-height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tab.active{display:block}
+
+/* BOTTOM NAV */
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--navy);display:flex;padding-bottom:var(--safe-bot);border-top:1px solid rgba(255,255,255,0.1)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:var(--nav-h);background:none;border:none;color:rgba(255,255,255,0.45);font-size:10px;font-weight:600;gap:3px;cursor:pointer;position:relative}
+.nb.active{color:var(--orange)}
+.nb.active::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--orange);border-radius:0 0 2px 2px}
+.nb-ic{font-size:18px;line-height:1;pointer-events:none}
+.nb-tx{pointer-events:none}
+.nb-badge{position:absolute;top:6px;right:calc(50% - 22px);background:var(--amber);color:#fff;border-radius:8px;font-size:9px;font-weight:700;padding:1px 5px;display:none;pointer-events:none}
+
+/* CARDS */
+.card{background:#fff;border-radius:12px;margin:0 12px 12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.07)}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:14px}
+
+/* FORM */
+label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px}
+select,input[type=date]{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;color:var(--text);background:#fff;-webkit-appearance:none;appearance:none;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(232,119,34,0.12)}
+textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;color:var(--text);background:#fff;resize:none;font-family:inherit;outline:none;min-height:76px}
+.field-row{margin-bottom:16px}
+
+/* VOICE */
+.voice-row{display:flex;gap:8px;margin-top:4px}
+.voice-ta{flex:1}
+.voice-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.voice-btn{background:var(--navy);color:#fff;border:none;border-radius:8px;width:42px;height:42px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.voice-btn.listening{background:var(--red);animation:pulse 1s infinite}
+.voice-btn:active{opacity:0.75}
+.skip-btn{background:var(--bg);color:var(--muted);border:1.5px solid var(--border);border-radius:8px;width:42px;height:28px;font-size:8px;font-weight:700;cursor:pointer;letter-spacing:0.3px;flex-shrink:0}
+.voice-status{font-size:11px;color:var(--orange);min-height:15px;margin-top:3px;font-weight:600}
+.skip-badge{display:none;font-size:11px;color:var(--amber);font-weight:600;margin-top:2px}
+
+/* CREW COUNTER */
+.crew-row{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
+.crew-btn{background:var(--bg);border:none;width:46px;height:46px;font-size:24px;cursor:pointer;color:var(--navy);font-weight:600;flex-shrink:0}
+.crew-btn:active{background:var(--border)}
+.crew-val{flex:1;text-align:center;font-size:24px;font-weight:700;color:var(--navy);background:#fff;height:46px;line-height:46px;border-left:1.5px solid var(--border);border-right:1.5px solid var(--border)}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.toggle-label{font-size:14px;font-weight:600;flex:1}
+.toggle-switch{position:relative;width:50px;height:28px;background:var(--border);border-radius:14px;cursor:pointer;border:none;flex-shrink:0;transition:background 0.2s}
+.toggle-switch.on{background:var(--orange)}
+.toggle-switch::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
+.toggle-switch.on::after{transform:translateX(22px)}
+.toggle-sub{display:none;padding-top:4px}
+.toggle-sub.show{display:block}
+
+/* TRADE CHECKBOXES */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.check-item{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:8px;padding:8px 10px;cursor:pointer;border:1.5px solid transparent;transition:border-color 0.15s,background 0.15s}
+.check-item.selected{border-color:var(--orange);background:rgba(232,119,34,0.07)}
+.check-box{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:all 0.15s}
+.check-item.selected .check-box{background:var(--orange);border-color:var(--orange);color:#fff}
+.check-lbl{font-size:13px;font-weight:500}
+
+/* PHOTOS */
+.photo-btn{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.photo-btn:active{opacity:0.75}
+.photo-count{font-size:13px;color:var(--muted);margin-left:10px}
+.photo-thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.photo-thumb{width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid var(--border)}
+
+/* SUBMIT */
+.submit-btn{display:block;width:calc(100% - 24px);margin:6px 12px;background:var(--orange);color:#fff;border:none;border-radius:12px;padding:16px;font-size:17px;font-weight:700;cursor:pointer;text-align:center;box-shadow:0 4px 14px rgba(232,119,34,0.28)}
+.submit-btn:active{opacity:0.85;transform:scale(0.99)}
+.submit-status{text-align:center;font-size:12px;color:var(--muted);margin:4px 12px 8px}
+
+/* AMBER BANNER */
+#amberBanner{display:none;background:rgba(245,158,11,0.1);border:1.5px solid var(--amber);border-radius:10px;margin:0 12px 10px;padding:10px 14px;font-size:13px;color:#92400e;font-weight:600;cursor:pointer}
+
+/* START TAB */
+.start-hero{margin:12px 12px 10px;background:var(--navy);border-radius:16px;padding:28px 22px;color:#fff;text-align:center}
+.hero-eyebrow{color:var(--orange);font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-size:24px;font-weight:800;line-height:1.2;margin-bottom:6px}
+.hero-sub{color:rgba(255,255,255,0.55);font-size:13px;margin-bottom:26px}
+.start-cta{background:var(--orange);color:#fff;border:none;border-radius:10px;padding:15px 32px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(232,119,34,0.4)}
+.start-cta:active{opacity:0.85}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 12px 12px}
+.feat-card{background:#fff;border-radius:10px;padding:14px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.feat-icon{font-size:22px;margin-bottom:5px}
+.feat-title{font-size:13px;font-weight:700;color:var(--navy)}
+.feat-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.pilot-note-box{background:rgba(245,158,11,0.08);border:1.5px solid rgba(245,158,11,0.35);border-radius:10px;margin:0 12px 12px;padding:12px 14px;font-size:13px;color:#78350f;line-height:1.5}
+.placeholder-note{background:rgba(245,158,11,0.08);border:1.5px solid rgba(245,158,11,0.35);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#92400e;font-weight:600}
+
+/* PROCORE */
+.procore-header{background:#0B3875;color:#fff;padding:13px 16px;border-radius:10px 10px 0 0;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;margin:0 12px 0}
+.procore-body{background:#fff;border-radius:0 0 10px 10px;margin:0 12px 12px;overflow:hidden}
+.pro-row{display:flex;border-bottom:1px solid #EEF0F3}
+.pro-row:last-child{border-bottom:none}
+.pro-lbl{width:120px;padding:10px 12px;font-size:12px;font-weight:600;color:#6B7280;background:#F9FAFB;border-right:1px solid #EEF0F3;flex-shrink:0;line-height:1.4}
+.pro-val{flex:1;padding:10px 12px;font-size:13px;word-break:break-word;line-height:1.4}
+.pro-val.empty{color:var(--amber);font-style:italic}
+.pro-val.filled{color:var(--text)}
+
+/* GUIDE */
+.step-item{display:flex;gap:14px;margin-bottom:20px}
+.step-num{width:32px;height:32px;background:var(--navy);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-body h4{font-size:15px;font-weight:700;margin-bottom:3px}
+.step-body p{font-size:13px;color:var(--muted);line-height:1.5}
+.tip-box{background:rgba(232,119,34,0.07);border:1.5px solid rgba(232,119,34,0.25);border-radius:10px;padding:12px 14px;margin:0 12px 10px;font-size:13px;color:#7c3406;line-height:1.5}
+
+/* TOAST */
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bot) + 16px);left:50%;transform:translateX(-50%) translateY(16px);background:rgba(27,42,74,0.95);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;z-index:500;white-space:nowrap;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EXIT MODAL */
+#exitModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;align-items:center;justify-content:center}
+#exitModal.show{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:26px 22px;width:290px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.modal-box h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.modal-box p{font-size:14px;color:var(--muted);margin-bottom:22px}
+.modal-btns{display:flex;gap:10px}
+.modal-btns button{flex:1;padding:13px;border-radius:10px;font-size:15px;font-weight:700;border:none;cursor:pointer}
+.modal-cancel{background:var(--bg);color:var(--text)}
+.modal-exit-btn{background:var(--red);color:#fff}
+
+/* DEVICE BANNER */
+#deviceBanner{display:none;position:relative;margin:8px 12px 0;border-radius:10px;padding:10px 36px 10px 14px;font-size:13px;font-weight:600;line-height:1.4;z-index:50}
+#deviceBanner.ok{background:rgba(34,197,94,0.12);border:1.5px solid rgba(34,197,94,0.4);color:#166534}
+#deviceBanner.warn{background:rgba(245,158,11,0.1);border:1.5px solid rgba(245,158,11,0.5);color:#92400e}
+#deviceBanner.info{background:rgba(27,42,74,0.07);border:1.5px solid rgba(27,42,74,0.2);color:#1B2A4A}
+#deviceBanner.err{background:rgba(239,68,68,0.08);border:1.5px solid rgba(239,68,68,0.4);color:#991b1b}
+#deviceBannerX{position:absolute;top:8px;right:10px;background:none;border:none;font-size:16px;cursor:pointer;color:inherit;opacity:0.6;line-height:1}
+#deviceBannerX:active{opacity:1}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.55}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="hdr">
+<div id="hdrInner">
+  <div>
+    <div class="fc-mark">FieldComm <span style="font-size:9px;font-weight:800;background:#f59e0b;color:#1c1917;padding:1px 6px;border-radius:4px;letter-spacing:.5px;vertical-align:middle;">DEMO · NOT SAVED</span></div>
+    <div class="proj-sub" id="hdrProj">Cypress Pointe II</div>
+  </div>
+  <div id="hdrRight">
+    <button class="hdrBtn" id="langBtn" onclick="toggleLang()"><span id="langLabel">ES</span></button>
+    <button class="hdrBtn" id="exitBtn" onclick="openExit()">✕ <span id="exitLabel">Exit</span></button>
+  </div>
+</div>
+</header>
+
+<!-- TAB 0: START -->
+<div class="tab active" id="tab0">
+  <div id="deviceBanner">
+    <span id="deviceBannerMsg"></span>
+    <button id="deviceBannerX" onclick="dismissBanner()">✕</button>
+  </div>
+  <div class="start-hero">
+    <div class="hero-eyebrow">FieldComm Daily Report</div>
+    <div class="hero-title" id="heroTitle">Cypress Pointe<br>Phase II</div>
+    <div class="hero-sub" id="heroSub">Keystone Build Partners · Lakeland, FL · 312 units</div>
+    <button class="start-cta" id="s0cta" onclick="go('1')">Begin AS Report →</button>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card"><div class="feat-icon">🎤</div><div class="feat-title" id="f1t">Voice Input</div><div class="feat-desc" id="f1d">Dictate field notes hands-free in English or Spanish</div></div>
+    <div class="feat-card"><div class="feat-icon">🏗️</div><div class="feat-title" id="f2t">Procore Ready</div><div class="feat-desc" id="f2d">Auto-builds daily log entry as you fill the form</div></div>
+    <div class="feat-card"><div class="feat-icon">📶</div><div class="feat-title" id="f3t">Works Offline</div><div class="feat-desc" id="f3d">Reports queue locally and send when back online</div></div>
+    <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-title" id="f4t">Skip-Friendly</div><div class="feat-desc" id="f4d">Never blocked — skip any field and come back later</div></div>
+  </div>
+  <div class="pilot-note-box" id="pilotNote">
+    🧪 <strong>Pilot version</strong> — Dropdowns show sample data. After your setup call with the FieldComm team, the final version will have your AS names, zones, and sub roster loaded. Tap <strong>Begin AS Report</strong> to try it now.
+  </div>
+</div>
+
+<!-- TAB 1: AS REPORT -->
+<div class="tab" id="tab1">
+  <div class="card">
+    <div class="placeholder-note" id="pnote">⚠ Pilot mode — sample data in dropdowns. Final version uses your team's real names.</div>
+    <div class="field-row">
+      <label id="lDate">Date</label>
+      <input type="date" id="fDate" oninput="updateProcore()">
+    </div>
+    <div class="field-row">
+      <label id="lAS">AS Name</label>
+      <select id="fAS" onchange="updateProcore()">
+        <option value="">— Select AS —</option>
+        <option>AS-01 (Add Name)</option><option>AS-02 (Add Name)</option>
+        <option>AS-03 (Add Name)</option><option>AS-04 (Add Name)</option>
+        <option>AS-05 (Add Name)</option><option>AS-06 (Add Name)</option>
+        <option>AS-07 (Add Name)</option><option>AS-08 (Add Name)</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label id="lZone">Zone / Building</label>
+      <select id="fZone" onchange="updateProcore()">
+        <option value="">— Select Zone —</option>
+        <option>Building A</option><option>Building B</option>
+        <option>Building C</option><option>Building D</option>
+        <option>Common Area</option><option>Site / Grounds</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ctCrew">Crew on Site</div>
+    <div class="field-row">
+      <label id="lCrew">Total Workers Today</label>
+      <div class="crew-row">
+        <button class="crew-btn" onclick="adjCrew(-1)">−</button>
+        <div class="crew-val" id="crewVal">0</div>
+        <button class="crew-btn" onclick="adjCrew(1)">+</button>
+      </div>
+    </div>
+    <div class="field-row">
+      <label id="lTrades">Sub Trades on Site</label>
+      <div class="check-grid" id="tradesGrid"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ctWork">Work Status</div>
+    <div class="field-row">
+      <label id="lDone">Work Completed Today</label>
+      <div class="voice-row">
+        <textarea class="voice-ta" id="fDone" placeholder="What was finished today?" rows="3" oninput="updateProcore()"></textarea>
+        <div class="voice-actions">
+          <button class="voice-btn" id="vbDone" onclick="startVoice('fDone','vbDone','vsDone')">🎤</button>
+          <button class="skip-btn" onclick="skipField('fDone','skDone')">SKIP</button>
+        </div>
+      </div>
+      <div class="voice-status" id="vsDone"></div>
+      <div class="skip-badge" id="skDone"></div>
+    </div>
+    <div class="field-row">
+      <label id="lProg">Work In Progress</label>
+      <div class="voice-row">
+        <textarea class="voice-ta" id="fProg" placeholder="What's still in progress?" rows="3" oninput="updateProcore()"></textarea>
+        <div class="voice-actions">
+          <button class="voice-btn" id="vbProg" onclick="startVoice('fProg','vbProg','vsProg')">🎤</button>
+          <button class="skip-btn" onclick="skipField('fProg','skProg')">SKIP</button>
+        </div>
+      </div>
+      <div class="voice-status" id="vsProg"></div>
+      <div class="skip-badge" id="skProg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ctIssues">Issues &amp; Safety</div>
+    <div class="field-row">
+      <div class="toggle-row">
+        <span class="toggle-label" id="lDelay">Delay Today?</span>
+        <button class="toggle-switch" id="tDelay" onclick="toggleField('tDelay','subDelay')"></button>
+      </div>
+      <div class="toggle-sub" id="subDelay">
+        <div class="field-row">
+          <label id="lDelayType">Delay Type</label>
+          <select id="fDelayType" onchange="updateProcore()">
+            <option value="">— Select —</option>
+            <option>Material delivery</option><option>Weather</option>
+            <option>Subcontractor no-show</option><option>Inspection hold</option>
+            <option>Design issue</option><option>Equipment failure</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label id="lDelayDesc">Delay Description</label>
+          <div class="voice-row">
+            <textarea class="voice-ta" id="fDelayDesc" placeholder="Describe the delay..." rows="2" oninput="updateProcore()"></textarea>
+            <div class="voice-actions">
+              <button class="voice-btn" id="vbDelay" onclick="startVoice('fDelayDesc','vbDelay','vsDelay')">🎤</button>
+              <button class="skip-btn" onclick="skipField('fDelayDesc','skDelay')">SKIP</button>
+            </div>
+          </div>
+          <div class="voice-status" id="vsDelay"></div>
+          <div class="skip-badge" id="skDelay"></div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="toggle-row">
+        <span class="toggle-label" id="lSafety">Safety Event?</span>
+        <button class="toggle-switch" id="tSafety" onclick="toggleField('tSafety','subSafety')"></button>
+      </div>
+      <div class="toggle-sub" id="subSafety">
+        <div class="field-row">
+          <label id="lSafetyType">Event Type</label>
+          <select id="fSafetyType" onchange="updateProcore()">
+            <option value="">— Select —</option>
+            <option>Near-miss</option><option>First aid</option>
+            <option>Property damage</option><option>Equipment issue</option>
+            <option>Environmental</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label id="lSafetyDesc">Safety Description</label>
+          <div class="voice-row">
+            <textarea class="voice-ta" id="fSafetyDesc" placeholder="Describe the event..." rows="2" oninput="updateProcore()"></textarea>
+            <div class="voice-actions">
+              <button class="voice-btn" id="vbSafety" onclick="startVoice('fSafetyDesc','vbSafety','vsSafety')">🎤</button>
+              <button class="skip-btn" onclick="skipField('fSafetyDesc','skSafety')">SKIP</button>
+            </div>
+          </div>
+          <div class="voice-status" id="vsSafety"></div>
+          <div class="skip-badge" id="skSafety"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ctInsp">Inspections</div>
+    <div class="field-row">
+      <label id="lInsp">Inspection Today</label>
+      <select id="fInsp" onchange="updateProcore()">
+        <option value="">None</option>
+        <option>Framing</option><option>MEP Rough-In</option>
+        <option>Insulation</option><option>Pre-Drywall</option>
+        <option>Drywall</option><option>Concrete Pour</option>
+        <option>Final</option><option>Other</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label id="lInspResult">Result</label>
+      <select id="fInspResult" onchange="updateProcore()">
+        <option value="">— Select —</option>
+        <option>Passed</option><option>Failed — corrections required</option>
+        <option>Pending</option><option>Rescheduled</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ctPhoto">Photos</div>
+    <div>
+      <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 <span id="lPhoto">Add Photos</span></button>
+      <span class="photo-count" id="photoCount"></span>
+    </div>
+    <div class="photo-thumbs" id="photoThumbs"></div>
+    <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotos(this)" style="display:none">
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ctNotes">Open Notes</div>
+    <div class="field-row">
+      <label id="lNotes">Additional Notes</label>
+      <div class="voice-row">
+        <textarea class="voice-ta" id="fNotes" placeholder="Anything else for the record?" rows="3" oninput="updateProcore()"></textarea>
+        <div class="voice-actions">
+          <button class="voice-btn" id="vbNotes" onclick="startVoice('fNotes','vbNotes','vsNotes')">🎤</button>
+          <button class="skip-btn" onclick="skipField('fNotes','skNotes')">SKIP</button>
+        </div>
+      </div>
+      <div class="voice-status" id="vsNotes"></div>
+      <div class="skip-badge" id="skNotes"></div>
+    </div>
+  </div>
+
+  <div id="amberBanner" onclick="go('1')"></div>
+  <button class="submit-btn" id="submitBtn" onclick="submitReport()">Submit Daily Report</button>
+  <div class="submit-status" id="submitStatus"></div>
+</div>
+
+<!-- TAB 2: PROCORE PREVIEW -->
+<div class="tab" id="tab2">
+  <div id="proReceivedBar" style="display:none;background:#22C55E;color:#fff;margin:0 12px 10px;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:700;display:none;align-items:center;gap:8px">
+    ✓ <span id="proReceivedMsg">Report received</span>
+  </div>
+  <div id="proEmptyState" style="background:#fff;border-radius:12px;margin:0 12px 12px;padding:28px 20px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.07)">
+    <div style="font-size:32px;margin-bottom:10px">📋</div>
+    <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px" id="proEmptyTitle">No report data yet</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.5" id="proEmptyDesc">Fill out the Report tab and tap Submit — the Procore daily log will build here in real time.</div>
+    <button onclick="go('1')" style="margin-top:16px;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer" id="proEmptyBtn">Go to Report →</button>
+  </div>
+  <div class="procore-header" id="proHeader" style="display:none">🏗️ <span id="ph">Procore Daily Log Preview</span></div>
+  <div class="procore-body" id="procoreBody" style="display:none"></div>
+  <div class="card" style="margin-top:12px;display:none" id="proNoteCard">
+    <div style="font-size:13px;color:var(--muted);line-height:1.6" id="proNote">
+      Fields in <span style="color:var(--amber);font-weight:600">amber</span> are not yet entered. In the live system, Submit routes directly to Procore's daily log API.
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+      🇺🇸 Procore log is always submitted in English regardless of field language used.
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: GUIDE -->
+<div class="tab" id="tab3">
+  <div class="card">
+    <div class="card-title" id="ctGuide">How It Works</div>
+    <div class="step-item"><div class="step-num">1</div><div class="step-body"><h4 id="g1h">AS Opens This Link</h4><p id="g1p">Each AS taps a URL at end of day — no login, no app to install. Opens in Safari on iPhone or iPad.</p></div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-body"><h4 id="g2h">Voice or Tap</h4><p id="g2p">Tap 🎤 to dictate hands-free in English or Spanish. Dropdowns stay click-only for Procore data integrity.</p></div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-body"><h4 id="g3h">Procore Log Builds Live</h4><p id="g3p">The form data formats into a Procore daily log entry in real time — no re-typing, no reformatting.</p></div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-body"><h4 id="g4h">Super Reviews &amp; Approves</h4><p id="g4p">You see all AS reports in one view. Review, approve, and Procore updates automatically.</p></div></div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-body"><h4 id="g5h">Dead Zones? No Problem</h4><p id="g5p">Reports queue offline and auto-send when signal returns. Nothing gets lost in the field.</p></div></div>
+  </div>
+  <div class="tip-box" id="voiceTip">🎤 <strong>Voice tip:</strong> Tap the mic, wait a beat, speak naturally. Tap again to stop. Requires Safari on iOS 15+ or Chrome on Android.</div>
+  <div class="tip-box" id="browserTip">📱 <strong>Opening this file:</strong> If you see code text instead of this page — press and hold the attachment, tap <em>Save to Files</em>, then open it from the Files app in Safari.</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav id="nav">
+  <button class="nb active" id="nb0" onclick="go('0')"><span class="nb-ic">🏠</span><span class="nb-tx" id="nb0t">Start</span></button>
+  <button class="nb" id="nb1" onclick="go('1')"><span class="nb-ic">📋</span><span class="nb-tx" id="nb1t">Report</span><span class="nb-badge" id="nb1badge"></span></button>
+  <button class="nb" id="nb2" onclick="go('2')"><span class="nb-ic">🏗</span><span class="nb-tx" id="nb2t">Procore</span></button>
+  <button class="nb" id="nb3" onclick="go('3')"><span class="nb-ic">❓</span><span class="nb-tx" id="nb3t">Guide</span></button>
+</nav>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- EXIT MODAL (permanent demo rule) -->
+<div id="exitModal">
+  <div class="modal-box">
+    <h3 id="exitTitle">Exit Demo?</h3>
+    <p id="exitMsg">Your report data will not be saved.</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeExit()" id="cancelLabel">Stay</button>
+      <button class="modal-exit-btn" onclick="doExit()" id="exitConfirmLabel">Exit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var currentTab='0', currentLang='en', crewCount=0;
+var activeRec=null, photoFiles=[], submitDone=false;
+var selectedTrades={};
+
+var TRADES=[
+  {id:'Concrete',en:'Concrete',es:'Concreto'},
+  {id:'Framing',en:'Framing',es:'Estructura'},
+  {id:'Electrical',en:'Electrical',es:'Eléctrico'},
+  {id:'Plumbing',en:'Plumbing',es:'Plomería'},
+  {id:'HVAC',en:'HVAC',es:'HVAC'},
+  {id:'Insulation',en:'Insulation',es:'Aislamiento'},
+  {id:'Drywall',en:'Drywall',es:'Drywall'},
+  {id:'Painting',en:'Painting',es:'Pintura'},
+  {id:'Flooring',en:'Flooring',es:'Pisos'},
+  {id:'Trim',en:'Trim',es:'Molduras'}
+];
+
+var S={
+  en:{
+    nb0:'Start',nb1:'Report',nb2:'Procore',nb3:'Guide',
+    s0cta:'Begin AS Report →',
+    pilotNote:'🧪 <strong>Pilot version</strong> — Dropdowns show sample data. After your setup call with the FieldComm team, your AS names, zones, and sub roster will be loaded. Tap <strong>Begin AS Report</strong> to try it now.',
+    pnote:'⚠ Pilot mode — sample data in dropdowns. Final version uses your team\'s real names.',
+    lDate:'Date',lAS:'AS Name',lZone:'Zone / Building',
+    lCrew:'Total Workers Today',lTrades:'Sub Trades on Site',
+    ctWork:'Work Status',
+    lDone:'Work Completed Today',donePh:'What was finished today?',
+    lProg:'Work In Progress',progPh:'What\'s still in progress?',
+    ctIssues:'Issues & Safety',
+    lDelay:'Delay Today?',lDelayType:'Delay Type',lDelayDesc:'Delay Description',delayPh:'Describe the delay...',
+    lSafety:'Safety Event?',lSafetyType:'Event Type',lSafetyDesc:'Safety Description',safetyPh:'Describe the event...',
+    ctInsp:'Inspections',lInsp:'Inspection Today',lInspResult:'Result',
+    ctPhoto:'Photos',lPhoto:'Add Photos',
+    ctNotes:'Open Notes',lNotes:'Additional Notes',notesPh:'Anything else for the record?',
+    submitBtn:'Submit Daily Report',
+    exitTitle:'Exit Demo?',exitMsg:'Your report data will not be saved.',
+    cancelLabel:'Stay',exitConfirmLabel:'Exit',
+    langBtn:'ES',
+    proNote:'This preview updates live as the AS fills out the form. Fields in <span style="color:var(--amber);font-weight:600">amber</span> are not yet entered. In the live system, Submit routes directly to Procore\'s daily log API.',
+    amberBanner:'⚠ Report is incomplete — tap to finish missing fields',
+    voiceTip:'🎤 <strong>Voice tip:</strong> Tap the mic, wait a beat, speak naturally. Tap again to stop. Requires Safari on iOS 15+ or Chrome on Android.',
+    browserTip:'📱 <strong>Opening this file:</strong> If you see code text instead of this page — press and hold the attachment, tap <em>Save to Files</em>, then open it from the Files app in Safari.',
+    g1h:'AS Opens This Link',g1p:'Each AS taps a URL at end of day — no login, no app to install. Opens in Safari on iPhone or iPad.',
+    g2h:'Voice or Tap',g2p:'Tap 🎤 to dictate hands-free in English or Spanish. Dropdowns stay click-only for Procore data integrity.',
+    g3h:'Procore Log Builds Live',g3p:'The form data formats into a Procore daily log entry in real time — no re-typing, no reformatting.',
+    g4h:'Super Reviews & Approves',g4p:'You see all AS reports in one view. Review, approve, and Procore updates automatically.',
+    g5h:'Dead Zones? No Problem',g5p:'Reports queue offline and auto-send when signal returns. Nothing gets lost in the field.',
+    f1t:'Voice Input',f1d:'Dictate field notes hands-free in English or Spanish',
+    f2t:'Procore Ready',f2d:'Auto-builds daily log entry as you fill the form',
+    f3t:'Works Offline',f3d:'Reports queue locally and send when back online',
+    f4t:'Skip-Friendly',f4d:'Never blocked — skip any field and come back later',
+    heroSub:'Keystone Build Partners · Lakeland, FL · 312 units',
+    hdrProj:'Cypress Pointe II',ph:'Procore Daily Log Preview',
+    ctCrew:'Crew on Site',ctGuide:'How It Works',
+    skipMsg:'⚠ Come back to this',
+    photoCount:function(n){return n+' photo'+(n===1?'':'s')+' added'},
+    voiceStart:'Listening — tap mic to stop',voiceError:'Voice unavailable — requires Safari iOS 15+',
+    exitLabel:'Exit',langSwitched:'Switched to English',
+    proEmptyTitle:'No report data yet',
+    proEmptyDesc:'Fill out the Report tab and tap Submit — the Procore daily log will build here in real time.',
+    proEmptyBtn:'Go to Report →'
+  },
+  es:{
+    nb0:'Inicio',nb1:'Reporte',nb2:'Procore',nb3:'Guía',
+    s0cta:'Comenzar Reporte →',
+    pilotNote:'🧪 <strong>Versión piloto</strong> — Los menús muestran datos de muestra. Después de su llamada con el equipo de FieldComm, se cargarán sus nombres de AS, zonas y subcontratistas. Toque <strong>Comenzar Reporte</strong> para probar.',
+    pnote:'⚠ Modo piloto — datos de muestra. La versión final usa los nombres reales de su equipo.',
+    lDate:'Fecha',lAS:'Nombre del AS',lZone:'Zona / Edificio',
+    lCrew:'Total de Trabajadores Hoy',lTrades:'Subcontratistas en Obra',
+    ctWork:'Estado del Trabajo',
+    lDone:'Trabajo Completado Hoy',donePh:'¿Qué se terminó hoy?',
+    lProg:'Trabajo en Progreso',progPh:'¿Qué sigue en proceso?',
+    ctIssues:'Problemas y Seguridad',
+    lDelay:'¿Hubo Retraso Hoy?',lDelayType:'Tipo de Retraso',lDelayDesc:'Descripción del Retraso',delayPh:'Describa el retraso...',
+    lSafety:'¿Evento de Seguridad?',lSafetyType:'Tipo de Evento',lSafetyDesc:'Descripción',safetyPh:'Describa el evento...',
+    ctInsp:'Inspecciones',lInsp:'Inspección Hoy',lInspResult:'Resultado',
+    ctPhoto:'Fotos',lPhoto:'Agregar Fotos',
+    ctNotes:'Notas Abiertas',lNotes:'Notas Adicionales',notesPh:'¿Algo más para el registro?',
+    submitBtn:'Enviar Reporte Diario',
+    exitTitle:'¿Salir del Demo?',exitMsg:'Los datos del reporte no se guardarán.',
+    cancelLabel:'Quedarme',exitConfirmLabel:'Salir',
+    langBtn:'EN',
+    proNote:'Esta vista previa se actualiza en tiempo real. Los campos en <span style="color:var(--amber);font-weight:600">ámbar</span> no han sido ingresados aún.',
+    amberBanner:'⚠ Reporte incompleto — toque para terminar los campos faltantes',
+    voiceTip:'🎤 <strong>Consejo de voz:</strong> Toque el micrófono, espere un momento, hable normalmente. Toque de nuevo para detener.',
+    browserTip:'📱 <strong>Abrir este archivo:</strong> Si ve código de texto — mantenga presionado el archivo adjunto, toque <em>Guardar en Archivos</em>, luego ábralo desde la app Archivos en Safari.',
+    g1h:'El AS Abre Este Enlace',g1p:'Cada AS toca un enlace al final del día. Sin contraseña, sin instalar apps.',
+    g2h:'Voz o Toque',g2p:'Toque 🎤 para dictar en inglés o español. Los menús permanecen de solo toque para mantener la integridad de los datos en Procore.',
+    g3h:'Registro de Procore Automático',g3p:'Los datos del formulario se formatean en tiempo real. Sin volver a escribir, sin reformatear.',
+    g4h:'El Super Revisa y Aprueba',g4p:'Usted ve todos los reportes de AS en una vista. Revise, apruebe y Procore se actualiza.',
+    g5h:'¿Sin Señal? Sin Problema',g5p:'Los reportes se guardan offline y se envían automáticamente al recuperar señal.',
+    f1t:'Entrada de Voz',f1d:'Dicte notas sin manos en inglés o español',
+    f2t:'Listo para Procore',f2d:'Crea automáticamente la entrada del registro diario',
+    f3t:'Funciona Offline',f3d:'Los reportes se envían al recuperar señal',
+    f4t:'Flexible',f4d:'Nunca bloqueado — omita cualquier campo y vuelva después',
+    heroSub:'Keystone Build Partners · Lakeland, FL · 312 unidades',
+    hdrProj:'Cypress Pointe II',ph:'Vista Previa del Registro Diario Procore',
+    ctCrew:'Equipo en Obra',ctGuide:'Cómo Funciona',
+    skipMsg:'⚠ Volver a esto',
+    photoCount:function(n){return n+' foto'+(n===1?'':'s')+' agregada'+(n===1?'':'s')},
+    voiceStart:'Escuchando — toque para detener',voiceError:'Voz no disponible — requiere Safari iOS 15+',
+    exitLabel:'Salir',langSwitched:'Cambiado a Español',
+    proEmptyTitle:'Sin datos de reporte',
+    proEmptyDesc:'Complete la pestaña Reporte y toque Enviar — el registro diario de Procore aparecerá aquí.',
+    proEmptyBtn:'Ir al Reporte →'
+  }
+};
+
+function s(k){var v=S[currentLang][k];return v!==undefined?v:(S['en'][k]||k)}
+
+function go(id){
+  document.getElementById('tab'+currentTab).classList.remove('active');
+  document.getElementById('nb'+currentTab).classList.remove('active');
+  currentTab=id;
+  document.getElementById('tab'+id).classList.add('active');
+  document.getElementById('nb'+id).classList.add('active');
+  if(id==='2')updateProcore();
+  document.getElementById('tab'+id).scrollTop=0;
+}
+
+function dismissBanner(){
+  var b=document.getElementById('deviceBanner');
+  b.style.display='none';
+}
+
+function prescreenDevice(){
+  var ua=navigator.userAgent;
+  var isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var isSafariIOS=isIOS&&/Safari/i.test(ua)&&!/CriOS|FxiOS|OPiOS|EdgiOS/i.test(ua);
+  var isAndroid=/Android/i.test(ua);
+  var isChromeAndroid=isAndroid&&/Chrome/i.test(ua);
+  var isDesktop=!isIOS&&!isAndroid;
+  var hasVoice=!!(window.webkitSpeechRecognition||window.SpeechRecognition);
+  var isFile=window.location.protocol==='file:';
+
+  var msg='', type='', autoDismiss=false;
+
+  if(isFile){
+    msg='⚠ Opened as a local file — voice input and offline queue require a hosted link. Drop this file on Netlify to enable all features.';
+    type='warn';
+  } else if(isSafariIOS){
+    msg='✓ iPhone / iPad Safari — all features available.';
+    type='ok'; autoDismiss=true;
+  } else if(isChromeAndroid){
+    msg='✓ Android Chrome — all features available.';
+    type='ok'; autoDismiss=true;
+  } else if(isDesktop&&hasVoice){
+    msg='ℹ Desktop browser detected — voice input works here. This tool is optimized for iPhone and iPad on-site.';
+    type='info';
+  } else if(!hasVoice){
+    msg='⚠ Voice input is not supported in this browser. You can type field notes manually — all other features work normally.';
+    type='warn';
+  }
+
+  if(!msg) return;
+  var b=document.getElementById('deviceBanner');
+  document.getElementById('deviceBannerMsg').textContent=msg;
+  b.className=type;
+  b.style.display='block';
+  if(autoDismiss) setTimeout(dismissBanner, 3500);
+}
+
+function toggleLang(){
+  currentLang=currentLang==='en'?'es':'en';
+  applyStrings();
+  showToast(s('langSwitched'));
+}
+
+function applyStrings(){
+  var map={
+    nb0t:'nb0',nb1t:'nb1',nb2t:'nb2',nb3t:'nb3',
+    s0cta:'s0cta',pilotNote:'pilotNote',pnote:'pnote',
+    lDate:'lDate',lAS:'lAS',lZone:'lZone',lCrew:'lCrew',lTrades:'lTrades',
+    ctWork:'ctWork',lDone:'lDone',lProg:'lProg',
+    ctIssues:'ctIssues',lDelay:'lDelay',lDelayType:'lDelayType',lDelayDesc:'lDelayDesc',
+    lSafety:'lSafety',lSafetyType:'lSafetyType',lSafetyDesc:'lSafetyDesc',
+    ctInsp:'ctInsp',lInsp:'lInsp',lInspResult:'lInspResult',
+    ctPhoto:'ctPhoto',lPhoto:'lPhoto',ctNotes:'ctNotes',lNotes:'lNotes',
+    submitBtn:'submitBtn',exitTitle:'exitTitle',exitMsg:'exitMsg',
+    cancelLabel:'cancelLabel',exitConfirmLabel:'exitConfirmLabel',
+    exitLabel:'exitLabel',
+    proEmptyTitle:'proEmptyTitle',proEmptyDesc:'proEmptyDesc',proEmptyBtn:'proEmptyBtn',
+    f1t:'f1t',f1d:'f1d',f2t:'f2t',f2d:'f2d',f3t:'f3t',f3d:'f3d',f4t:'f4t',f4d:'f4d',
+    heroSub:'heroSub',hdrProj:'hdrProj',ph:'ph',
+    proNote:'proNote',voiceTip:'voiceTip',browserTip:'browserTip',
+    g1h:'g1h',g1p:'g1p',g2h:'g2h',g2p:'g2p',g3h:'g3h',g3p:'g3p',
+    g4h:'g4h',g4p:'g4p',g5h:'g5h',g5p:'g5p',ctCrew:'ctCrew',ctGuide:'ctGuide'
+  };
+  Object.keys(map).forEach(function(elId){
+    var el=document.getElementById(elId);
+    if(!el)return;
+    var v=s(map[elId]);
+    if(typeof v==='string')el.innerHTML=v;
+  });
+  document.getElementById('langLabel').textContent=s('langBtn');
+  var phs={fDone:s('donePh'),fProg:s('progPh'),fDelayDesc:s('delayPh'),fSafetyDesc:s('safetyPh'),fNotes:s('notesPh')};
+  Object.keys(phs).forEach(function(id){var el=document.getElementById(id);if(el)el.placeholder=phs[id];});
+  buildTradesGrid();
+  updateProcore();
+}
+
+function buildTradesGrid(){
+  var grid=document.getElementById('tradesGrid');
+  grid.innerHTML='';
+  TRADES.forEach(function(t){
+    var sel=!!selectedTrades[t.id];
+    var div=document.createElement('div');
+    div.className='check-item'+(sel?' selected':'');
+    div.id='tr_'+t.id;
+    div.innerHTML='<div class="check-box">'+(sel?'✓':'')+'</div><span class="check-lbl">'+(currentLang==='es'?t.es:t.en)+'</span>';
+    div.onclick=function(){toggleTrade(t.id,div)};
+    grid.appendChild(div);
+  });
+}
+
+function toggleTrade(id,el){
+  selectedTrades[id]=!selectedTrades[id];
+  el.classList.toggle('selected',selectedTrades[id]);
+  el.querySelector('.check-box').textContent=selectedTrades[id]?'✓':'';
+  updateProcore();
+}
+
+function adjCrew(d){
+  crewCount=Math.max(0,crewCount+d);
+  document.getElementById('crewVal').textContent=crewCount;
+  updateProcore();
+}
+
+function toggleField(btnId,subId){
+  var btn=document.getElementById(btnId);
+  var sub=document.getElementById(subId);
+  btn.classList.toggle('on');
+  sub.classList.toggle('show',btn.classList.contains('on'));
+  updateProcore();
+}
+
+function skipField(fieldId,badgeId){
+  var badge=document.getElementById(badgeId);
+  if(badge){badge.textContent=s('skipMsg');badge.style.display='block';}
+}
+
+function startVoice(fieldId,btnId,statusId){
+  var SR=window.webkitSpeechRecognition||window.SpeechRecognition;
+  if(!SR){showToast(s('voiceError'));return;}
+  if(activeRec){activeRec.stop();activeRec=null;return;}
+  var rec=new SR();
+  rec.lang=currentLang==='es'?'es-US':'en-US';
+  rec.continuous=true;
+  rec.interimResults=true;
+  activeRec=rec;
+  var btn=document.getElementById(btnId);
+  var status=document.getElementById(statusId);
+  var field=document.getElementById(fieldId);
+  var base=field.value;
+  var finalBuffer='';
+  btn.classList.add('listening');
+  status.textContent=currentLang==='es'?'Escuchando — toque para detener':'Listening — tap mic to stop';
+  var t=setTimeout(function(){rec.stop();},90000);
+  rec.onresult=function(e){
+    var interim='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal){finalBuffer+=(finalBuffer?' ':'')+e.results[i][0].transcript.trim();}
+      else{interim+=e.results[i][0].transcript;}
+    }
+    field.value=(base?(base+' '):'')+finalBuffer+(interim?' '+interim:'');
+    updateProcore();
+  };
+  rec.onerror=function(e){
+    clearTimeout(t);btn.classList.remove('listening');status.textContent='';activeRec=null;
+    if(e.error==='not-allowed'){
+      showToast(currentLang==='es'?'Mic bloqueado — permita acceso en la barra de dirección':'Mic blocked — tap lock icon in address bar to allow');
+    } else if(e.error!=='aborted'){showToast('Mic: '+e.error);}
+  };
+  rec.onend=function(){
+    clearTimeout(t);btn.classList.remove('listening');status.textContent='';activeRec=null;
+    if(finalBuffer){field.value=(base?(base+' '):'')+finalBuffer;updateProcore();}
+  };
+  try{rec.start();}catch(e){btn.classList.remove('listening');status.textContent='';activeRec=null;showToast('Could not start mic: '+e.message);}
+}
+
+function handlePhotos(input){
+  Array.from(input.files).forEach(function(f){
+    if(f.size>15*1024*1024){showToast('Photo over 15MB — skipped');return;}
+    photoFiles.push(f);
+    var r=new FileReader();
+    r.onload=function(e){
+      var img=document.createElement('img');
+      img.className='photo-thumb';img.src=e.target.result;
+      document.getElementById('photoThumbs').appendChild(img);
+    };
+    r.onerror=function(){showToast('Could not read photo — try again');};
+    r.readAsDataURL(f);
+  });
+  var cnt=photoFiles.length;
+  var fn=S[currentLang].photoCount||S.en.photoCount;
+  document.getElementById('photoCount').textContent=cnt>0?fn(cnt):'';
+}
+
+function updateProcore(){
+  var date=document.getElementById('fDate').value||null;
+  var as_=document.getElementById('fAS').value||null;
+  var zone=document.getElementById('fZone').value||null;
+  var crew=crewCount>0?crewCount:null;
+  var trList=Object.keys(selectedTrades).filter(function(k){return selectedTrades[k];});
+  var done=document.getElementById('fDone').value.trim()||null;
+  var prog=document.getElementById('fProg').value.trim()||null;
+  var hasDelay=document.getElementById('tDelay').classList.contains('on');
+  var delayType=hasDelay?(document.getElementById('fDelayType').value||null):null;
+  var delayDesc=hasDelay?(document.getElementById('fDelayDesc').value.trim()||null):null;
+  var hasSafety=document.getElementById('tSafety').classList.contains('on');
+  var safetyType=hasSafety?(document.getElementById('fSafetyType').value||null):null;
+  var safetyDesc=hasSafety?(document.getElementById('fSafetyDesc').value.trim()||null):null;
+  var insp=document.getElementById('fInsp').value||null;
+  var inspRes=document.getElementById('fInspResult').value||null;
+  var notes=document.getElementById('fNotes').value.trim()||null;
+
+  function row(lbl,val){
+    return '<div class="pro-row"><div class="pro-lbl">'+lbl+'</div><div class="pro-val '+(val?'filled':'empty')+'">'+(val||'— not entered —')+'</div></div>';
+  }
+
+  var delayStr=hasDelay?((delayType||'—')+(delayDesc?' — '+delayDesc:'')):'None';
+  var safetyStr=hasSafety?((safetyType||'—')+(safetyDesc?' — '+safetyDesc:'')):'None';
+  var inspStr=insp?(insp+(inspRes?' ('+inspRes+')':'')):null;
+
+  document.getElementById('procoreBody').innerHTML=
+    row('Date',date)+row('AS Name',as_)+row('Zone',zone)+
+    row('Crew Count',crew?crew+' workers':null)+
+    row('Trades on Site',trList.length?trList.join(', '):null)+
+    row('Work Completed',done)+row('Work In Progress',prog)+
+    row('Delay',delayStr)+row('Safety',safetyStr)+
+    row('Inspection',inspStr)+
+    row('Photos',photoFiles.length?photoFiles.length+' attached':null)+
+    row('Notes',notes);
+
+  if(submitDone){
+    var missing=[as_,zone,done,prog].filter(function(v){return !v;}).length;
+    var badge=document.getElementById('nb1badge');
+    badge.textContent=missing;
+    badge.style.display=missing>0?'block':'none';
+  }
+}
+
+function submitReport(){
+  submitDone=true;
+  if(currentLang!=='en'){
+    currentLang='en';
+    applyStrings();
+    showToast('Switched to English for Procore');
+  }
+  var keys=[document.getElementById('fAS').value,document.getElementById('fZone').value,
+    document.getElementById('fDone').value.trim(),document.getElementById('fProg').value.trim()];
+  var filled=keys.filter(function(v){return !!v;}).length;
+  var now=new Date();
+  var report={
+    ts:now.toISOString(),
+    date:document.getElementById('fDate').value,
+    as:document.getElementById('fAS').value,
+    zone:document.getElementById('fZone').value,
+    crew:crewCount,
+    trades:Object.keys(selectedTrades).filter(function(k){return selectedTrades[k];}),
+    done:document.getElementById('fDone').value,
+    prog:document.getElementById('fProg').value,
+    notes:document.getElementById('fNotes').value,
+    photos:photoFiles.length,
+    status:navigator.onLine?'sent':'queued'
+  };
+  try{
+    var q=JSON.parse(localStorage.getItem('fc_q')||'[]');
+    report.id=now.getTime();q.push(report);
+    localStorage.setItem('fc_q',JSON.stringify(q));
+  }catch(e){showToast('⚠ Local save failed: '+e.message);}
+
+  // Show received bar and procore table, hide empty state
+  var timeStr=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var statusStr=navigator.onLine?'Sent':'Queued — will send when online';
+  var bar=document.getElementById('proReceivedBar');
+  bar.style.display='flex';
+  document.getElementById('proReceivedMsg').textContent='Report logged at '+timeStr+' · '+statusStr;
+  document.getElementById('proEmptyState').style.display='none';
+  document.getElementById('proHeader').style.display='flex';
+  document.getElementById('procoreBody').style.display='block';
+  document.getElementById('proNoteCard').style.display='block';
+
+  var banner=document.getElementById('amberBanner');
+  if(filled<4){
+    banner.innerHTML=s('amberBanner');banner.style.display='block';
+    showToast('Saved — '+filled+'/4 key fields ⚠');
+  } else {
+    banner.style.display='none';
+    showToast(navigator.onLine?'✓ Report submitted':'📶 Queued — will send when online');
+  }
+  document.getElementById('submitStatus').textContent=navigator.onLine?('✓ Sent '+timeStr):'⚠ Offline — queued';
+  updateProcore();
+  setTimeout(function(){go('2');},600);
+}
+
+window.addEventListener('online',function(){
+  try{
+    var q=JSON.parse(localStorage.getItem('fc_q')||'[]');
+    var pending=q.filter(function(r){return r.status==='queued';});
+    if(pending.length){
+      pending.forEach(function(r){r.status='sent';});
+      localStorage.setItem('fc_q',JSON.stringify(q));
+      showToast('📶 Back online — '+pending.length+' report(s) sent');
+    }
+  }catch(e){}
+});
+
+function openExit(){document.getElementById('exitModal').classList.add('show');}
+function closeExit(){document.getElementById('exitModal').classList.remove('show');}
+function doExit(){window.location.href='about:blank';}
+
+var toastT;
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},3200);
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var d=new Date();
+  document.getElementById('fDate').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  buildTradesGrid();
+  updateProcore();
+  applyStrings();
+  // Confirm localStorage is available
+  try{localStorage.setItem('fc_test','1');localStorage.removeItem('fc_test');}
+  catch(e){showToast('⚠ Storage unavailable — offline queue disabled');}
+});
+</script>
+</body>
+</html>

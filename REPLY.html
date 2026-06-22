@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FC-REPLY-001 | Foreman Reply | Rev 1</title>
+<style>
+  :root{
+    --navy:#1a2744; --blue:#2563eb; --teal:#0d9488; --green:#16a34a;
+    --amber:#f59e0b; --red:#dc2626; --g50:#f8fafc; --g100:#f1f5f9;
+    --g200:#e2e8f0; --g400:#94a3b8; --g600:#475569; --g800:#1e293b; --white:#fff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--g100); color:var(--g800); font-size:16px; min-height:100vh;}
+
+  .header{background:var(--navy); color:var(--white); padding:12px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:50;}
+  .h-left{display:flex; align-items:center; gap:10px;}
+  .h-logo{font-size:13px; font-weight:700; color:#93c5fd; letter-spacing:.5px;}
+  .h-title{font-size:15px; font-weight:600;}
+  .h-right{display:flex; gap:8px;}
+  .lang{background:transparent; border:1.5px solid #93c5fd; color:#93c5fd;
+    border-radius:6px; padding:6px 12px; font-size:14px; font-weight:700;
+    cursor:pointer; min-height:38px;}
+  .lang.on{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .exit{background:#374151; border:none; color:#d1d5db; border-radius:6px;
+    padding:6px 12px; font-size:14px; cursor:pointer; min-height:38px;}
+
+  .eng{background:#1e3a5f; color:#bfdbfe; font-size:12px; padding:8px 16px;
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .eng strong{color:#dbeafe;}
+
+  .intro{padding:16px 16px 4px; font-size:15px; color:var(--g600);}
+  .intro b{color:var(--g800);}
+
+  .wrap{padding:12px 16px 120px;}
+
+  .card{background:var(--white); border:1px solid var(--g200);
+    border-radius:14px; margin-bottom:14px; overflow:hidden;}
+  .card.p1{border-left:5px solid var(--red);}
+  .card.p2{border-left:5px solid var(--amber);}
+  .card.p3{border-left:5px solid var(--teal);}
+
+  .c-top{padding:14px 16px 6px;}
+  .c-id-row{display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;}
+  .c-id{font-size:12px; color:var(--g400); font-weight:700;}
+  .pbadge{font-size:11px; font-weight:800; padding:2px 8px; border-radius:5px;
+    text-transform:uppercase; letter-spacing:.4px;}
+  .pb1{background:#fee2e2; color:var(--red);}
+  .pb2{background:#fef3c7; color:#92400e;}
+  .pb3{background:#ccfbf1; color:#0f766e;}
+  .c-desc{font-size:17px; font-weight:600; line-height:1.35; margin-bottom:6px;}
+  .c-loc{font-size:13px; color:var(--g600);}
+
+  .c-actions{padding:10px 16px 14px;}
+  .row-label{font-size:12px; font-weight:700; color:var(--g400);
+    text-transform:uppercase; letter-spacing:.5px; margin:10px 0 8px;}
+
+  /* big tap buttons */
+  .status-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;}
+  .sbtn{border:2px solid var(--g200); background:var(--white); color:var(--g600);
+    border-radius:12px; padding:14px 8px; font-size:15px; font-weight:700;
+    cursor:pointer; min-height:60px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:4px; line-height:1.1;
+    text-align:center;}
+  .sbtn .ic{font-size:22px;}
+  .sbtn.sel-done{background:var(--green); border-color:var(--green); color:#fff;}
+  .sbtn.sel-work{background:var(--blue); border-color:var(--blue); color:#fff;}
+  .sbtn.sel-not{background:var(--g600); border-color:var(--g600); color:#fff;}
+
+  .reveal{display:none; margin-top:12px;}
+  .reveal.show{display:block;}
+
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{border:2px solid var(--g200); background:var(--white); color:var(--g600);
+    border-radius:10px; padding:11px 16px; font-size:15px; font-weight:600;
+    cursor:pointer; min-height:48px;}
+  .chip.sel{background:var(--blue); border-color:var(--blue); color:#fff;}
+  .chip.trade.sel{background:var(--teal); border-color:var(--teal);}
+
+  .date-in{font-size:16px; padding:11px 12px; border:2px solid var(--g200);
+    border-radius:10px; min-height:48px; width:100%; margin-top:8px;}
+
+  /* the ONE free-text box — voice first */
+  .note-toggle{display:flex; align-items:center; gap:8px; margin-top:12px;
+    background:none; border:none; color:var(--blue); font-size:14px;
+    font-weight:700; cursor:pointer; padding:6px 0; min-height:40px;}
+  .note-box{display:none; margin-top:8px;}
+  .note-box.show{display:block;}
+  .note-inner{display:flex; gap:8px; align-items:flex-start;}
+  .mic{background:var(--teal); color:#fff; border:none; border-radius:12px;
+    width:54px; min-height:54px; font-size:22px; cursor:pointer; flex-shrink:0;}
+  .mic.live{background:var(--red);}
+  .note-ta{flex:1; font-size:16px; padding:11px 12px; border:2px solid var(--g200);
+    border-radius:10px; resize:vertical; min-height:54px; line-height:1.4;}
+  .note-hint{font-size:12px; color:var(--g400); margin-top:6px;}
+
+  .submit-bar{position:fixed; bottom:0; left:0; right:0; background:var(--white);
+    border-top:1px solid var(--g200); padding:12px 16px; z-index:60;
+    box-shadow:0 -2px 12px rgba(0,0,0,.06);}
+  .submit-btn{width:100%; background:var(--blue); color:#fff; border:none;
+    border-radius:12px; padding:15px; font-size:17px; font-weight:800;
+    cursor:pointer; min-height:56px;}
+  .submit-sub{text-align:center; font-size:12px; color:var(--g400); margin-top:6px;}
+
+  .toast{position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:var(--g800); color:#fff; padding:11px 18px; border-radius:10px;
+    font-size:14px; font-weight:600; z-index:90; opacity:0; transition:opacity .2s;
+    max-width:330px; text-align:center; pointer-events:none;}
+  .toast.show{opacity:1;}
+  .toast.success{background:var(--green);}
+  .toast.warn{background:var(--amber); color:#1c1917;}
+  .toast.error{background:var(--red);}
+
+  .overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5);
+    z-index:100; align-items:center; justify-content:center; padding:16px;}
+  .overlay.show{display:flex;}
+  .modal{background:#fff; border-radius:16px; padding:22px; max-width:460px;
+    width:100%; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+  .modal h3{font-size:18px; color:var(--navy); margin-bottom:4px;}
+  .modal .sub{font-size:13px; color:var(--g400); margin-bottom:14px;}
+  .payload{background:var(--g50); border:1px solid var(--g200); border-radius:10px;
+    padding:14px; font-family:ui-monospace,Menlo,monospace; font-size:13px;
+    color:var(--g800); white-space:pre-wrap; line-height:1.6;}
+  .modal-foot{display:flex; gap:8px; margin-top:16px;}
+  .m-send{flex:1; background:var(--green); color:#fff; border:none; border-radius:11px;
+    padding:14px; font-size:16px; font-weight:800; cursor:pointer; min-height:52px;}
+  .m-back{background:var(--g100); color:var(--g600); border:none; border-radius:11px;
+    padding:14px 18px; font-size:15px; cursor:pointer; min-height:52px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-left"><span class="h-logo">FieldComm</span><span class="h-title" id="hTitle">Your items</span><span style="font-size:10px;font-weight:800;background:#f59e0b;color:#1c1917;padding:2px 7px;border-radius:4px;letter-spacing:.5px;">DEMO</span></div>
+  <div class="h-right">
+    <button class="lang" id="langBtn" onclick="toggleLang()">ES</button>
+    <button class="exit" onclick="exitDemo()" id="exitBtn">Exit</button>
+  </div>
+</div>
+
+<div class="eng">
+  <strong>Keystone Build Partners</strong> · Cypress Pointe Phase II · <span id="foremanLine">Paint — José</span>
+</div>
+
+<div class="intro" id="introLine"></div>
+
+<div class="wrap" id="cards"></div>
+
+<div class="submit-bar">
+  <button class="submit-btn" id="submitBtn" onclick="reviewSend()">Send replies</button>
+  <div class="submit-sub" id="submitSub"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="mTitle">This is what gets sent</h3>
+    <div class="sub" id="mSub">Goes to the FieldComm number — nothing to type.</div>
+    <div class="payload" id="mPayload"></div>
+    <div class="modal-foot">
+      <button class="m-back" onclick="closeModal()" id="mBack">Back</button>
+      <button class="m-send" onclick="confirmSend()" id="mSend">Send it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let spanish = false;
+let recog=null, recogActive=false, voiceTimer=null, voiceTarget=null;
+
+// Items dispatched to this foreman (the "one clean text with their items")
+const ITEMS = [
+  { id:'PL-002', pri:'P1', desc:'Touch-up missing on all Unit 204 door frames', loc:'Bldg A — 204' },
+  { id:'PL-016', pri:'P2', desc:'Ceiling cut-in ragged edge — club room', loc:'Bldg A — Club' },
+  { id:'PL-006', pri:'P2', desc:'Roller texture variation — bedroom 2', loc:'Bldg B — 215' },
+];
+
+const TRADES = ['Drywall','Paint','Flooring','Plumbing','Electrical','Trim','Insulation','Other'];
+
+// reply state per item
+const reply = {};
+ITEMS.forEach(i => reply[i.id] = { status:null, eta:null, etaDate:'', reassign:null, note:'' });
+
+function t(en, es){ return spanish ? es : en; }
+
+const T = {
+  yourItems:['Your items','Tus ítems'],
+  intro:['Tap your answer on each item. Only talk if you need to add something.','Toca tu respuesta en cada ítem. Solo habla si necesitas agregar algo.'],
+  done:['Done','Listo'],
+  work:['Working on it','En eso'],
+  notmine:['Not mine','No es mío'],
+  whenLabel:['When will it be done?','¿Cuándo estará listo?'],
+  today:['Today','Hoy'],
+  tomorrow:['Tomorrow','Mañana'],
+  thisweek:['This week','Esta semana'],
+  nextweek:['Next week','Próxima semana'],
+  pickdate:['Pick a date','Elegir fecha'],
+  whoLabel:['Whose work is it?','¿De quién es?'],
+  addnote:['＋ Add a note / problem (talk)','＋ Agregar nota / problema (hablar)'],
+  hidenote:['－ Hide note','－ Ocultar nota'],
+  notehint:['Tap the mic and talk. We clean it up for you.','Toca el micrófono y habla. Lo arreglamos por ti.'],
+  noteph:['Or type here…','O escribe aquí…'],
+  send:['Send replies','Enviar respuestas'],
+  whatsent:['This is what gets sent','Esto es lo que se envía'],
+  nothingtype:['Goes to the FieldComm number — nothing to type.','Va al número de FieldComm — nada que escribir.'],
+  back:['Back','Volver'],
+  sendit:['Send it','Enviarlo'],
+  tapfirst:['Answer at least one item first','Responde al menos un ítem'],
+  sent:['Sent — thanks. You can close this.','Enviado — gracias. Puedes cerrar.'],
+  micoff:['Voice not available — type instead','Voz no disponible — escribe'],
+  micstop:['Voice stopped','Voz detenida'],
+};
+function L(k){ return T[k][spanish?1:0]; }
+
+function render(){
+  document.getElementById('hTitle').textContent = L('yourItems');
+  document.getElementById('introLine').innerHTML = L('intro');
+  document.getElementById('submitBtn').textContent = L('send');
+  const tradeWord = spanish ? 'Pintura' : 'Paint';
+  document.getElementById('foremanLine').textContent = tradeWord + ' — José';
+
+  const trades = TRADES;
+  document.getElementById('cards').innerHTML = ITEMS.map(item => {
+    const r = reply[item.id];
+    const pb = item.pri==='P1'?'pb1':item.pri==='P2'?'pb2':'pb3';
+    const pcard = item.pri.toLowerCase();
+
+    const etaChips = ['today','tomorrow','thisweek','nextweek','pickdate'].map(k=>{
+      const sel = r.eta===k ? 'sel':'';
+      return `<button class="chip ${sel}" onclick="setEta('${item.id}','${k}')">${L(k)}</button>`;
+    }).join('');
+    const dateInput = r.eta==='pickdate'
+      ? `<input type="date" class="date-in" value="${r.etaDate}" onchange="setEtaDate('${item.id}',this.value)">` : '';
+
+    const tradeChips = trades.map(tr=>{
+      const sel = r.reassign===tr ? 'sel':'';
+      const lbl = spanish ? trESp(tr) : tr;
+      return `<button class="chip trade ${sel}" onclick="setReassign('${item.id}','${tr}')">${lbl}</button>`;
+    }).join('');
+
+    return `
+    <div class="card ${pcard}">
+      <div class="c-top">
+        <div class="c-id-row">
+          <span class="c-id">${item.id}</span>
+          <span class="pbadge ${pb}">${item.pri}</span>
+        </div>
+        <div class="c-desc">${item.desc}</div>
+        <div class="c-loc">📍 ${item.loc}</div>
+      </div>
+      <div class="c-actions">
+        <div class="status-grid">
+          <button class="sbtn ${r.status==='done'?'sel-done':''}" onclick="setStatus('${item.id}','done')">
+            <span class="ic">✅</span>${L('done')}</button>
+          <button class="sbtn ${r.status==='working'?'sel-work':''}" onclick="setStatus('${item.id}','working')">
+            <span class="ic">🔧</span>${L('work')}</button>
+          <button class="sbtn ${r.status==='notmine'?'sel-not':''}" onclick="setStatus('${item.id}','notmine')">
+            <span class="ic">🚫</span>${L('notmine')}</button>
+        </div>
+
+        <div class="reveal ${r.status==='working'?'show':''}">
+          <div class="row-label">${L('whenLabel')}</div>
+          <div class="chip-row">${etaChips}</div>
+          ${dateInput}
+        </div>
+
+        <div class="reveal ${r.status==='notmine'?'show':''}">
+          <div class="row-label">${L('whoLabel')}</div>
+          <div class="chip-row">${tradeChips}</div>
+        </div>
+
+        <button class="note-toggle" onclick="toggleNote('${item.id}')" id="nt-${item.id}">
+          ${r._noteOpen ? L('hidenote') : L('addnote')}
+        </button>
+        <div class="note-box ${r._noteOpen?'show':''}" id="nb-${item.id}">
+          <div class="note-inner">
+            <button class="mic" id="mic-${item.id}" onclick="voice('${item.id}')">🎤</button>
+            <textarea class="note-ta" id="ta-${item.id}" rows="2" placeholder="${L('noteph')}"
+              oninput="setNote('${item.id}',this.value)">${r.note}</textarea>
+          </div>
+          <div class="note-hint">${L('notehint')}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function trESp(tr){
+  const m={Drywall:'Tablaroca',Paint:'Pintura',Flooring:'Pisos',Plumbing:'Plomería',
+    Electrical:'Eléctrico',Trim:'Molduras',Insulation:'Aislamiento',Other:'Otro'};
+  return m[tr]||tr;
+}
+
+function setStatus(id, s){
+  const r = reply[id];
+  r.status = (r.status===s)? null : s;
+  if(r.status!=='working'){ r.eta=null; r.etaDate=''; }
+  if(r.status!=='notmine'){ r.reassign=null; }
+  render();
+}
+function setEta(id,k){ const r=reply[id]; r.eta=(r.eta===k)?null:k; if(r.eta!=='pickdate') r.etaDate=''; render(); }
+function setEtaDate(id,v){ reply[id].etaDate=v; }
+function setReassign(id,tr){ const r=reply[id]; r.reassign=(r.reassign===tr)?null:tr; render(); }
+function setNote(id,v){ reply[id].note=v; }
+function toggleNote(id){ reply[id]._noteOpen = !reply[id]._noteOpen; render(); }
+
+// ── VOICE (continuous, 90s, graceful fallback) ──
+function voice(id){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ showToast(L('micoff'),'warn'); const ta=document.getElementById('ta-'+id); if(ta) ta.focus(); return; }
+  if(recogActive){ try{recog.stop();}catch(e){} return; }
+  try{
+    recog = new SR();
+    recog.continuous = true; recog.interimResults = true;
+    recog.lang = spanish ? 'es-US' : 'en-US';
+    recogActive = true; voiceTarget = id;
+    const mic = document.getElementById('mic-'+id); if(mic){ mic.textContent='⏹'; mic.classList.add('live'); }
+    recog.onresult = (e)=>{
+      let txt=''; for(let i=0;i<e.results.length;i++) txt+=e.results[i][0].transcript;
+      reply[id].note = txt;
+      const ta=document.getElementById('ta-'+id); if(ta) ta.value = txt;
+    };
+    recog.onerror = ()=>{ showToast(L('micstop'),'warn'); stopVoice(); };
+    recog.onend = ()=> stopVoice();
+    recog.start();
+    voiceTimer = setTimeout(()=>{ if(recogActive){ try{recog.stop();}catch(e){} } }, 90000);
+  }catch(err){ showToast(L('micoff'),'warn'); stopVoice(); }
+}
+function stopVoice(){
+  recogActive=false; if(voiceTimer) clearTimeout(voiceTimer);
+  if(voiceTarget){ const m=document.getElementById('mic-'+voiceTarget); if(m){ m.textContent='🎤'; m.classList.remove('live'); } }
+  voiceTarget=null;
+}
+
+// ── LANG / EXIT ──
+function toggleLang(){
+  spanish=!spanish;
+  const b=document.getElementById('langBtn');
+  if(spanish){ b.textContent='EN'; b.classList.add('on'); } else { b.textContent='ES'; b.classList.remove('on'); }
+  render();
+}
+function exitDemo(){
+  const msg = spanish ? '¿Salir?' : 'Exit?';
+  if(confirm(msg)){ document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#475569;">Closed.</div>'; }
+}
+
+// ── BUILD STRUCTURED PAYLOAD ──
+function etaText(r){
+  const map={today:'TODAY',tomorrow:'TOMORROW',thisweek:'THIS_WEEK',nextweek:'NEXT_WEEK',pickdate:(r.etaDate||'DATE_TBD')};
+  return map[r.eta]||'';
+}
+function buildPayload(){
+  const lines=[]; const notes=[];
+  ITEMS.forEach(item=>{
+    const r=reply[item.id];
+    if(!r.status) return;
+    if(r.status==='done') lines.push(`${item.id} DONE`);
+    else if(r.status==='working'){ const e=etaText(r); lines.push(`${item.id} WORKING${e?' ETA='+e:''}`); }
+    else if(r.status==='notmine'){ lines.push(`${item.id} NOT_MINE${r.reassign?' → '+r.reassign.toUpperCase():''}`); }
+    if(r.note && r.note.trim()!=='') notes.push(`NOTE ${item.id}: "${r.note.trim()}"`);
+  });
+  return { lines, notes, count: lines.length };
+}
+
+function reviewSend(){
+  const p = buildPayload();
+  if(p.count===0){ showToast(L('tapfirst'),'warn'); return; }
+  document.getElementById('mTitle').textContent = L('whatsent');
+  document.getElementById('mSub').textContent = L('nothingtype');
+  document.getElementById('mBack').textContent = L('back');
+  document.getElementById('mSend').textContent = L('sendit');
+  const body = p.lines.join('\n') + (p.notes.length ? '\n\n' + p.notes.join('\n') : '');
+  document.getElementById('mPayload').textContent = body;
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+
+function confirmSend(){
+  closeModal();
+  // fail-forward: simulate send, always report
+  const ok = Math.random() > 0.04;
+  if(ok){
+    showToast('✅ ' + L('sent'),'success');
+    document.getElementById('submitSub').textContent = (spanish?'Enviado ':'Sent ') + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  } else {
+    showToast(t('Send failed — copied, paste into a text','Falló — copiado, pégalo en un texto'),'error');
+  }
+}
+
+function showToast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show'+(type?' '+type:'');
+  clearTimeout(el._tm); el._tm=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+render();
+</script>
+</body>
+</html>

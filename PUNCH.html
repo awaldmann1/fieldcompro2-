@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FC-PUNCH-001 | Punch List | Rev 8</title>
+<style>
+  :root {
+    --fc-navy: #1a2744;
+    --fc-blue: #2563eb;
+    --fc-teal: #0d9488;
+    --fc-amber: #f59e0b;
+    --fc-red: #dc2626;
+    --fc-green: #16a34a;
+    --fc-gray-50: #f8fafc;
+    --fc-gray-100: #f1f5f9;
+    --fc-gray-200: #e2e8f0;
+    --fc-gray-400: #94a3b8;
+    --fc-gray-600: #475569;
+    --fc-gray-800: #1e293b;
+    --fc-white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--fc-gray-100);
+    color: var(--fc-gray-800);
+    min-height: 100vh;
+    font-size: 16px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--fc-navy);
+    color: var(--fc-white);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-logo { font-size: 13px; font-weight: 700; letter-spacing: .5px; color: #93c5fd; }
+  .header-title { font-size: 15px; font-weight: 600; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+
+  .lang-toggle {
+    background: transparent;
+    border: 1.5px solid #93c5fd;
+    color: #93c5fd;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 36px;
+  }
+  .lang-toggle.es-active { background: var(--fc-teal); border-color: var(--fc-teal); color: white; }
+
+  .exit-btn {
+    background: #374151;
+    border: none;
+    color: #d1d5db;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    min-height: 36px;
+  }
+
+  /* ── ENGAGEMENT BANNER ── */
+  .eng-banner {
+    background: #1e3a5f;
+    color: #93c5fd;
+    font-size: 11px;
+    padding: 6px 16px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .eng-banner span { white-space: nowrap; }
+  .eng-banner strong { color: #bfdbfe; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    background: var(--fc-white);
+    border-bottom: 2px solid var(--fc-gray-200);
+    padding: 0 16px;
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fc-gray-400);
+    cursor: pointer;
+    white-space: nowrap;
+    margin-bottom: -2px;
+    min-height: 44px;
+  }
+  .tab-btn.active { color: var(--fc-blue); border-bottom-color: var(--fc-blue); }
+
+  /* ── CONTENT PANELS ── */
+  .panel { display: none; padding: 16px; }
+  .panel.active { display: block; }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--fc-white);
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid var(--fc-gray-200);
+  }
+  .stat-num { font-size: 22px; font-weight: 800; }
+  .stat-label { font-size: 10px; color: var(--fc-gray-400); margin-top: 2px; text-transform: uppercase; letter-spacing: .4px; }
+  .stat-card.red .stat-num { color: var(--fc-red); }
+  .stat-card.amber .stat-num { color: var(--fc-amber); }
+  .stat-card.green .stat-num { color: var(--fc-green); }
+  .stat-card.blue .stat-num { color: var(--fc-blue); }
+
+  /* ── FILTER ROW ── */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-row select, .filter-row input {
+    font-size: 16px;
+    padding: 8px 10px;
+    border: 1px solid var(--fc-gray-200);
+    border-radius: 8px;
+    background: var(--fc-white);
+    color: var(--fc-gray-800);
+    min-height: 44px;
+  }
+  .filter-row select { flex: 1; min-width: 120px; }
+
+  .add-btn {
+    background: var(--fc-blue);
+    color: var(--fc-white);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  /* ── PUNCH ITEMS ── */
+  .punch-item {
+    background: var(--fc-white);
+    border-radius: 10px;
+    border: 1px solid var(--fc-gray-200);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow .15s;
+  }
+  .punch-item.p1-border { border-left: 4px solid var(--fc-red); }
+  .punch-item.p2-border { border-left: 4px solid var(--fc-amber); }
+  .punch-item.p3-border { border-left: 4px solid var(--fc-teal); }
+  .punch-item.dispatched-item { opacity: .85; }
+
+  .item-header {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .item-check {
+    width: 20px; height: 20px;
+    border: 2px solid var(--fc-gray-200);
+    border-radius: 5px;
+    display: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    background: white;
+  }
+  .item-check.checked { background: var(--fc-blue); border-color: var(--fc-blue); color: white; }
+  .select-mode .item-check { display: flex; }
+
+  .item-body { flex: 1; min-width: 0; }
+  .item-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .item-id { font-size: 11px; color: var(--fc-gray-400); font-weight: 600; }
+  .priority-badge {
+    font-size: 10px; font-weight: 800; padding: 2px 7px;
+    border-radius: 4px; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .p1-badge { background: #fee2e2; color: var(--fc-red); }
+  .p2-badge { background: #fef3c7; color: #92400e; }
+  .p3-badge { background: #ccfbf1; color: #0f766e; }
+
+  .item-desc { font-size: 14px; font-weight: 600; color: var(--fc-gray-800); margin-bottom: 6px; }
+  .item-meta {
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .meta-chip {
+    font-size: 11px; color: var(--fc-gray-600);
+    background: var(--fc-gray-50); border: 1px solid var(--fc-gray-200);
+    padding: 2px 8px; border-radius: 5px;
+  }
+
+  .dispatch-tag {
+    font-size: 11px; color: var(--fc-teal);
+    background: #f0fdfa; border: 1px solid #99f6e4;
+    padding: 2px 8px; border-radius: 5px; margin-top: 6px; display: inline-block;
+  }
+
+  /* Reply tracker */
+  .reply-tracker {
+    display: none;
+    padding: 10px 14px;
+    background: var(--fc-gray-50);
+    border-top: 1px solid var(--fc-gray-200);
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .reply-tracker.visible { display: flex; }
+  .tracker-label { font-size: 11px; color: var(--fc-gray-600); font-weight: 600; }
+  .tracker-steps { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tracker-step {
+    font-size: 11px; padding: 4px 10px; border-radius: 5px;
+    border: 1.5px solid var(--fc-gray-200); background: white;
+    cursor: pointer; color: var(--fc-gray-400); font-weight: 600;
+    min-height: 32px; display: flex; align-items: center;
+  }
+  .tracker-step.active { background: var(--fc-teal); color: white; border-color: var(--fc-teal); }
+  .tracker-step.done { background: var(--fc-green); color: white; border-color: var(--fc-green); }
+
+  .item-actions {
+    padding: 0 14px 12px;
+    display: flex;
+    gap: 8px;
+  }
+  .action-btn {
+    font-size: 13px; padding: 7px 14px;
+    border-radius: 7px; border: 1px solid var(--fc-gray-200);
+    background: var(--fc-white); color: var(--fc-blue);
+    cursor: pointer; font-weight: 600; min-height: 38px;
+  }
+  .action-btn.dispatch-btn { background: var(--fc-blue); color: white; border-color: var(--fc-blue); }
+  .action-btn.select-btn { color: var(--fc-teal); border-color: var(--fc-teal); }
+
+  /* ── DISPATCH BAR ── */
+  .dispatch-bar {
+    position: fixed;
+    bottom: -100px;
+    left: 0; right: 0;
+    background: var(--fc-navy);
+    padding: 14px 16px;
+    z-index: 200;
+    transition: bottom .25s ease;
+    border-top: 3px solid var(--fc-blue);
+  }
+  .dispatch-bar.visible { bottom: 0; }
+  .dispatch-bar-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .dispatch-count { color: #bfdbfe; font-size: 14px; font-weight: 700; }
+  .dispatch-cancel { background: #374151; border: none; color: #9ca3af; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; min-height: 38px; }
+  .dispatch-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .dispatch-action-btn {
+    flex: 1; background: var(--fc-blue); color: white; border: none;
+    border-radius: 8px; padding: 11px 16px; font-size: 14px; font-weight: 700;
+    cursor: pointer; min-height: 44px; min-width: 120px;
+  }
+  .dispatch-action-btn.email { background: var(--fc-teal); }
+  .dispatch-action-btn.both { background: var(--fc-green); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 300;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal {
+    background: white; border-radius: 14px;
+    padding: 20px; max-width: 500px; width: 100%;
+    max-height: 80vh; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-title { font-size: 16px; font-weight: 800; color: var(--fc-navy); margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--fc-gray-400); margin-bottom: 16px; }
+  .sub-dispatch-block {
+    background: var(--fc-gray-50); border: 1px solid var(--fc-gray-200);
+    border-radius: 9px; padding: 12px; margin-bottom: 10px;
+  }
+  .sub-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .sub-name { font-size: 14px; font-weight: 700; }
+  .sub-lang-pill {
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 5px;
+    background: #dbeafe; color: var(--fc-blue); cursor: pointer;
+  }
+  .sub-lang-pill.es { background: #ccfbf1; color: #0f766e; }
+  .msg-preview {
+    font-size: 12px; color: var(--fc-gray-600); background: white;
+    border: 1px solid var(--fc-gray-200); border-radius: 7px; padding: 10px;
+    margin-bottom: 8px; white-space: pre-wrap; line-height: 1.5;
+  }
+  .sub-items-list { font-size: 12px; color: var(--fc-gray-600); }
+  .sub-items-list li { margin-bottom: 3px; }
+  .modal-footer { display: flex; gap: 8px; margin-top: 16px; }
+  .modal-send-btn {
+    flex: 1; background: var(--fc-blue); color: white; border: none;
+    border-radius: 9px; padding: 12px; font-size: 15px; font-weight: 700;
+    cursor: pointer; min-height: 48px;
+  }
+  .modal-cancel-btn {
+    background: var(--fc-gray-100); color: var(--fc-gray-600); border: none;
+    border-radius: 9px; padding: 12px 16px; font-size: 14px; cursor: pointer; min-height: 48px;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--fc-gray-800); color: white;
+    padding: 10px 18px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    z-index: 500; opacity: 0; transition: opacity .2s;
+    max-width: 320px; text-align: center;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  .toast.success { background: var(--fc-green); }
+  .toast.error { background: var(--fc-red); }
+  .toast.warn { background: var(--fc-amber); color: #1c1917; }
+
+  /* ── ADD FORM ── */
+  .add-form {
+    display: none; background: var(--fc-white); border-radius: 10px;
+    border: 1px solid var(--fc-gray-200); padding: 16px; margin-bottom: 14px;
+  }
+  .add-form.visible { display: block; }
+  .form-row { margin-bottom: 12px; }
+  .form-label { font-size: 12px; font-weight: 700; color: var(--fc-gray-600); margin-bottom: 4px; display: block; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; font-size: 16px; padding: 10px 12px;
+    border: 1px solid var(--fc-gray-200); border-radius: 8px;
+    color: var(--fc-gray-800); background: white; min-height: 44px;
+  }
+  .form-textarea { min-height: 80px; resize: vertical; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-btns { display: flex; gap: 8px; margin-top: 14px; }
+  .form-save-btn {
+    flex: 1; background: var(--fc-blue); color: white; border: none;
+    border-radius: 8px; padding: 11px; font-size: 15px; font-weight: 700;
+    cursor: pointer; min-height: 44px;
+  }
+  .form-cancel-btn {
+    background: var(--fc-gray-100); color: var(--fc-gray-600); border: none;
+    border-radius: 8px; padding: 11px 14px; font-size: 14px; cursor: pointer; min-height: 44px;
+  }
+
+  .section-header {
+    font-size: 12px; font-weight: 800; color: var(--fc-gray-400);
+    text-transform: uppercase; letter-spacing: .6px;
+    margin: 18px 0 10px;
+  }
+
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .form-row-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <span class="header-logo">FieldComm Pro</span>
+    <span class="header-title">Punch List</span>
+    <span style="font-size:10px;font-weight:800;background:#f59e0b;color:#1c1917;padding:2px 7px;border-radius:4px;letter-spacing:.5px;">DEMO · NOT SAVED</span>
+  </div>
+  <div class="header-right">
+    <button class="lang-toggle" id="langToggle" onclick="toggleLang()">ES</button>
+    <button class="exit-btn" onclick="exitDemo()">Exit</button>
+  </div>
+</div>
+
+<!-- ENGAGEMENT BANNER -->
+<div class="eng-banner">
+  <span><strong>GC:</strong> Keystone Build Partners</span>
+  <span><strong>Project:</strong> Cypress Pointe Phase II</span>
+  <span><strong>Location:</strong> Lakeland, FL</span>
+  <span><strong>Units:</strong> 312</span>
+  <span><strong>Module:</strong> FC-PUNCH-001 Rev 8</span>
+</div>
+
+<!-- MODE TOGGLE -->
+<div style="background:var(--fc-white);border-bottom:1px solid var(--fc-gray-200);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+  <div style="display:inline-flex;background:var(--fc-gray-100);border-radius:9px;padding:3px;">
+    <button id="modeBasicBtn" onclick="setMode('basic')" style="border:none;border-radius:7px;padding:8px 16px;font-size:14px;font-weight:700;cursor:pointer;min-height:40px;background:var(--fc-blue);color:white;" data-en="Basic list" data-es="Lista básica">Basic list</button>
+    <button id="modeFullBtn" onclick="setMode('full')" style="border:none;border-radius:7px;padding:8px 16px;font-size:14px;font-weight:700;cursor:pointer;min-height:40px;background:transparent;color:var(--fc-gray-600);" data-en="Full tools" data-es="Herramientas">Full tools</button>
+  </div>
+  <span id="modeHint" style="font-size:12px;color:var(--fc-gray-400);" data-en="Just capture items — act on them later." data-es="Solo capture ítems — actúe después.">Just capture items — act on them later.</span>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="tabsRow">
+  <button class="tab-btn active" onclick="switchTab('field')" id="tab-field" data-en="Field Walk" data-es="Recorrido">Field Walk</button>
+  <button class="tab-btn" onclick="switchTab('dispatch')" id="tab-dispatch" data-en="Dispatch" data-es="Despacho">Dispatch</button>
+  <button class="tab-btn" onclick="switchTab('open')" id="tab-open" data-en="All Open" data-es="Todos">All Open</button>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     BASIC MODE PANEL — just a list to act on later
+════════════════════════════════════════════════ -->
+<div class="panel active" id="panel-basic">
+
+  <!-- Quick add -->
+  <div style="background:var(--fc-white);border:1px solid var(--fc-gray-200);border-radius:12px;padding:14px;margin-bottom:16px;">
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <button id="micBtn" onclick="basicVoice()" style="background:var(--fc-teal);color:white;border:none;border-radius:10px;width:48px;min-height:48px;font-size:20px;cursor:pointer;flex-shrink:0;" title="Voice">🎤</button>
+      <textarea id="basicDesc" placeholder="" rows="2" style="flex:1;font-size:16px;padding:10px 12px;border:1px solid var(--fc-gray-200);border-radius:10px;resize:vertical;min-height:48px;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+      <input id="basicLoc" type="text" placeholder="" style="flex:1;min-width:120px;font-size:16px;padding:9px 11px;border:1px solid var(--fc-gray-200);border-radius:9px;min-height:44px;">
+      <div style="display:inline-flex;gap:4px;" id="basicPriChips">
+        <button class="bpri" data-pri="P1" onclick="setBasicPri('P1')" style="border:1.5px solid var(--fc-gray-200);background:white;border-radius:7px;padding:7px 11px;font-size:13px;font-weight:700;cursor:pointer;min-height:40px;color:var(--fc-gray-600);">P1</button>
+        <button class="bpri" data-pri="P2" onclick="setBasicPri('P2')" style="border:1.5px solid var(--fc-blue);background:var(--fc-blue);color:white;border-radius:7px;padding:7px 11px;font-size:13px;font-weight:700;cursor:pointer;min-height:40px;">P2</button>
+        <button class="bpri" data-pri="P3" onclick="setBasicPri('P3')" style="border:1.5px solid var(--fc-gray-200);background:white;border-radius:7px;padding:7px 11px;font-size:13px;font-weight:700;cursor:pointer;min-height:40px;color:var(--fc-gray-600);">P3</button>
+      </div>
+    </div>
+    <button onclick="addBasicItem()" style="width:100%;margin-top:10px;background:var(--fc-blue);color:white;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;min-height:48px;" data-en="Add to list" data-es="Agregar a la lista">Add to list</button>
+  </div>
+
+  <!-- Open list -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <span class="section-header" style="margin:0;" id="basicOpenLabel" data-en="To do" data-es="Pendiente">To do</span>
+    <span style="font-size:13px;color:var(--fc-gray-400);" id="basicOpenCount"></span>
+  </div>
+  <div id="basicOpenList"></div>
+
+  <!-- Done list -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;">
+    <span class="section-header" style="margin:0;" data-en="Done" data-es="Listo">Done</span>
+    <span style="font-size:13px;color:var(--fc-gray-400);" id="basicDoneCount"></span>
+  </div>
+  <div id="basicDoneList"></div>
+
+</div><!-- /panel-basic -->
+
+<!-- ══════════════════════════════════════════════
+     FIELD WALK PANEL
+════════════════════════════════════════════════ -->
+<div class="panel" id="panel-field">
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card red"><div class="stat-num" id="stat-p1">4</div><div class="stat-label" data-en="Critical" data-es="Crítico">Critical</div></div>
+    <div class="stat-card amber"><div class="stat-num" id="stat-p2">7</div><div class="stat-label" data-en="Standard" data-es="Estándar">Standard</div></div>
+    <div class="stat-card green"><div class="stat-num" id="stat-p3">5</div><div class="stat-label" data-en="Minor" data-es="Menor">Minor</div></div>
+    <div class="stat-card blue"><div class="stat-num" id="stat-dis">0</div><div class="stat-label" data-en="Dispatched" data-es="Despachado">Dispatched</div></div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-row">
+    <select id="filterTrade" onchange="renderItems()" style="font-size:16px">
+      <option value="all">All Trades</option>
+      <option value="Drywall">Drywall</option>
+      <option value="Paint">Paint</option>
+      <option value="Flooring">Flooring</option>
+      <option value="Plumbing">Plumbing</option>
+      <option value="Electrical">Electrical</option>
+      <option value="Trim">Trim</option>
+    </select>
+    <select id="filterPri" onchange="renderItems()" style="font-size:16px">
+      <option value="all">All Priority</option>
+      <option value="P1">P1 Critical</option>
+      <option value="P2">P2 Standard</option>
+      <option value="P3">P3 Minor</option>
+    </select>
+    <button class="add-btn" onclick="toggleAddForm()" id="addBtnLabel" data-en="+ Add Item" data-es="+ Agregar">+ Add Item</button>
+  </div>
+
+  <!-- Sub directory provenance (from Daily Log) -->
+  <div id="rosterBar" style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:#0f766e;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;cursor:pointer;" onclick="toggleRosterDetail()">
+    <span><strong data-en="Sub directory:" data-es="Directorio:">Sub directory:</strong> <span id="rosterSummary"></span></span>
+    <span style="color:#0d9488;font-weight:700;" id="rosterToggle">▸</span>
+  </div>
+  <div id="rosterDetail" style="display:none;background:white;border:1px solid var(--fc-gray-200);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;"></div>
+
+  <!-- Project team & contact-for-help -->
+  <div id="teamBar" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:#1e40af;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;cursor:pointer;" onclick="toggleTeamDetail()">
+    <span><strong data-en="Team & help:" data-es="Equipo y ayuda:">Team & help:</strong> <span id="teamSummary"></span></span>
+    <span style="color:var(--fc-blue);font-weight:700;" id="teamToggle">▸</span>
+  </div>
+  <div id="teamDetail" style="display:none;background:white;border:1px solid var(--fc-gray-200);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;"></div>
+
+  <!-- Select mode toggle -->
+  <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+    <button class="action-btn select-btn" id="selectModeBtn" onclick="toggleSelectMode()" data-en="Select to Dispatch" data-es="Seleccionar">Select to Dispatch</button>
+    <span id="selectCount" style="font-size:13px; color:var(--fc-gray-400); display:none;"></span>
+  </div>
+
+  <!-- Add Form -->
+  <div class="add-form" id="addForm">
+    <div class="form-row">
+      <label class="form-label" data-en="Description" data-es="Descripción">Description</label>
+      <input class="form-input" id="newDesc" type="text" placeholder="What needs to be fixed?" style="font-size:16px">
+    </div>
+    <div class="form-row-2">
+      <div class="form-row">
+        <label class="form-label" data-en="Trade" data-es="Comercio">Trade</label>
+        <select class="form-select" id="newTrade" style="font-size:16px">
+          <option>Drywall</option><option>Paint</option><option>Flooring</option>
+          <option>Plumbing</option><option>Electrical</option><option>Trim</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label" data-en="Priority" data-es="Prioridad">Priority</label>
+        <select class="form-select" id="newPri" style="font-size:16px">
+          <option value="P1">P1 – Critical</option>
+          <option value="P2" selected>P2 – Standard</option>
+          <option value="P3">P3 – Minor</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-row">
+        <label class="form-label" data-en="Building" data-es="Edificio">Building</label>
+        <input class="form-input" id="newBldg" type="text" placeholder="A" style="font-size:16px">
+      </div>
+      <div class="form-row">
+        <label class="form-label" data-en="Unit / Zone" data-es="Unidad">Unit / Zone</label>
+        <input class="form-input" id="newUnit" type="text" placeholder="101" style="font-size:16px">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label" data-en="Due Date" data-es="Fecha Límite">Due Date</label>
+      <input class="form-input" id="newDue" type="date" style="font-size:16px">
+    </div>
+    <div class="form-btns">
+      <button class="form-save-btn" onclick="addItem()" data-en="Save Item" data-es="Guardar">Save Item</button>
+      <button class="form-cancel-btn" onclick="toggleAddForm()" data-en="Cancel" data-es="Cancelar">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Items list -->
+  <div id="itemsContainer"></div>
+
+</div><!-- /panel-field -->
+
+<!-- ══════════════════════════════════════════════
+     DISPATCH PANEL
+════════════════════════════════════════════════ -->
+<div class="panel" id="panel-dispatch">
+  <div class="section-header" data-en="Dispatched Items — Reply Tracking" data-es="Ítems Despachados — Seguimiento">Dispatched Items — Reply Tracking</div>
+  <div id="dispatchedContainer"></div>
+  <div id="noDispatched" style="text-align:center; color:var(--fc-gray-400); padding:40px 16px; font-size:14px;">
+    <div style="font-size:32px; margin-bottom:10px;">📤</div>
+    <span data-en="No dispatched items yet — select items in Field Walk and dispatch them." data-es="Sin ítems despachados aún.">No dispatched items yet — select items in Field Walk and dispatch them.</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ALL OPEN PANEL
+════════════════════════════════════════════════ -->
+<div class="panel" id="panel-open">
+  <div class="section-header" data-en="All Open Items by Trade" data-es="Todos por Comercio">All Open Items by Trade</div>
+  <div id="openContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     DISPATCH BAR (fixed bottom)
+════════════════════════════════════════════════ -->
+<div class="dispatch-bar" id="dispatchBar">
+  <div class="dispatch-bar-top">
+    <span class="dispatch-count" id="dispatchBarCount">0 items selected</span>
+    <button class="dispatch-cancel" onclick="cancelSelect()" data-en="Cancel" data-es="Cancelar">Cancel</button>
+  </div>
+  <div class="dispatch-actions">
+    <button class="dispatch-action-btn" onclick="openDispatchModal('text')" data-en="📱 Text Foreman" data-es="📱 Texto Capataz">📱 Text Foreman</button>
+    <button class="dispatch-action-btn email" onclick="openDispatchModal('email')" data-en="📧 Email Sub Office" data-es="📧 Email Oficina">📧 Email Sub Office</button>
+    <button class="dispatch-action-btn both" onclick="openDispatchModal('both')" data-en="✅ Both" data-es="✅ Ambos">✅ Both</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     DISPATCH MODAL
+════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="dispatchModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Send Dispatch</div>
+    <div class="modal-sub" id="modalSub">Review messages by trade before sending</div>
+    <div id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="modal-cancel-btn" onclick="closeModal()" data-en="Back" data-es="Volver">Back</button>
+      <button class="modal-send-btn" id="modalSendBtn" onclick="confirmDispatch()" data-en="Confirm & Send All" data-es="Confirmar y Enviar">Confirm & Send All</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────
+let spanishMode = false;
+let selectMode = false;
+let selectedIds = new Set();
+let currentDispatchType = null;
+
+// ── SUB DIRECTORY SOURCE ───────────────────────────────────────
+// SYSTEM OF RECORD = Procore. The roster originates from the
+// Procore Commitments tool (executed subcontracts + POs) joined to
+// the project Directory for contact details. A company is only a
+// sub on this project once a contract is issued or a PO is written.
+//
+// The DAILY REPORT is a FILTERED VIEW of that roster — not the full
+// list. It shows only: (a) subs ACTIVE on site (last 7 days), or
+// (b) subs with OPEN WORK ISSUES (open punch / RFI). A contracted
+// sub with no presence and no open items stays in the Procore
+// master and simply doesn't clutter the working view.
+//
+// ROBUSTNESS RULE: this app runs on whatever is supplied. Missing
+// fields render as placeholders, never undefined. Empty roster =
+// empty state, not a crash. Language preference (not carried by
+// Procore) defaults to EN when absent.
+const DAILY_LOG_ROSTER = [
+  { trade:'Drywall',    name:'Starr Drywall',       foreman:'Carlos M.', phone:'863-555-0111', email:'office@starrdrywall.com',  lang:'es', lastOnSite:'2026-06-19', onSiteToday:true  },
+  { trade:'Paint',      name:'Suncoast Paint Co.',  foreman:'José R.',   phone:'863-555-0122', email:'field@suncoastpaint.com',  lang:'es', lastOnSite:'2026-06-19', onSiteToday:true  },
+  { trade:'Plumbing',   name:'Clearwater Plumbing', foreman:'Dave H.',   phone:'863-555-0144', email:'info@clearwaterplumb.com', lang:'en', lastOnSite:'2026-06-19', onSiteToday:true  },
+  { trade:'Flooring',   name:'Bay Area Flooring',   foreman:'Miguel A.', phone:'863-555-0133', email:'jobs@bayareaflooring.com', lang:'es', lastOnSite:'2026-06-17', onSiteToday:false },
+  { trade:'Trim',       name:'Precision Trim LLC',  foreman:'Frank B.',  phone:'863-555-0166', email:'office@precisiontrim.com', lang:'en', lastOnSite:'2026-06-18', onSiteToday:false },
+  // PARTIAL DATA — proves graceful degradation. Procore export gave
+  // company + email only: no foreman, no phone, no language. App
+  // must still run: foreman/phone show placeholders, lang defaults EN.
+  { trade:'Insulation', name:'Coastal Insulation',  foreman:'',          phone:'',             email:'office@coastalinsul.com', lang:'',   lastOnSite:'2026-06-18', onSiteToday:false },
+  // Electrical sub demobbed 6/13 — NOT in roster. Punch items for
+  // Electrical (PL-007, PL-013) will flag "no sub on site."
+];
+const ROSTER_SYNCED = '2026-06-19 7:10 AM';
+
+// Resolver — returns null if the trade's sub is not on the project.
+function getSub(trade) {
+  return DAILY_LOG_ROSTER.find(s => s.trade === trade) || null;
+}
+
+// ── SAFE-FIELD HELPERS (never render undefined) ────────────────
+function fld(value, placeholder) {
+  return (value !== undefined && value !== null && String(value).trim() !== '') ? value : placeholder;
+}
+function subLang(sub) {
+  return (sub && sub.lang && String(sub.lang).trim() !== '') ? sub.lang : 'en';
+}
+
+// ── PROJECT TEAM (the people who own / fix the list) ───────────
+// The Super owns the accurate sub list. The APM runs Procore in the
+// field and is the contact-for-help when the list needs fixing.
+// Dummy names per demo identity standard.
+const PROJECT_ROLES = {
+  super: { role:'Superintendent', name:'T. Morrison', phone:'863-555-0100', note:'Owns the sub list' },
+  apm:   { role:'APM · Procore',  name:'R. Delgado',  phone:'863-555-0102', note:'Runs Procore in the field — fixes the list' },
+};
+
+// Zones → Area Superintendent (AS). Editable in the field.
+const ZONES = {
+  'A': { as:'J. Kane' },
+  'B': { as:'L. Ruiz' },
+  'C': { as:'M. Pope' },
+};
+function getAS(bldg) {
+  const z = ZONES[bldg];
+  return (z && z.as && String(z.as).trim() !== '') ? z.as : '';
+}
+
+// Inline-edit state (one field at a time). type: 'foreman' | 'as'
+let editState = { type:null, key:null };
+
+let items = [
+  { id:'PL-001', trade:'Drywall',    pri:'P1', desc:'Drywall butt joint gap >1/4" — Bldg A stairwell', bldg:'A', unit:'Stairwell', due:'2026-06-22', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-002', trade:'Paint',      pri:'P1', desc:'Touch-up missing on all Unit 204 door frames',     bldg:'A', unit:'204',       due:'2026-06-21', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-003', trade:'Flooring',   pri:'P1', desc:'LVP seam peaking — Unit 312 living room',          bldg:'C', unit:'312',       due:'2026-06-20', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-004', trade:'Plumbing',   pri:'P1', desc:'Shower valve handle loose — Unit 108 master bath', bldg:'A', unit:'108',       due:'2026-06-20', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-005', trade:'Drywall',    pri:'P2', desc:'Screw pops in hallway — Bldg B corridor',          bldg:'B', unit:'Corridor',  due:'2026-06-24', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-006', trade:'Paint',      pri:'P2', desc:'Roller texture variation — Unit 215 bedroom 2',    bldg:'B', unit:'215',       due:'2026-06-24', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-007', trade:'Electrical', pri:'P2', desc:'GFCI outlet not resetting — Unit 110 kitchen',     bldg:'A', unit:'110',       due:'2026-06-23', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-008', trade:'Trim',       pri:'P2', desc:'Base shoe gap at threshold — Units 201-208',       bldg:'B', unit:'201-208',   due:'2026-06-25', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-009', trade:'Flooring',   pri:'P2', desc:'Grout joint inconsistency — Bldg C entry tile',    bldg:'C', unit:'Entry',     due:'2026-06-25', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-010', trade:'Paint',      pri:'P3', desc:'Minor sheen variation — Unit 118 accent wall',     bldg:'A', unit:'118',       due:'2026-06-27', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-011', trade:'Trim',       pri:'P3', desc:'Crown molding paint line rough — Unit 305',        bldg:'C', unit:'305',       due:'2026-06-28', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-012', trade:'Drywall',    pri:'P3', desc:'Hairline crack at window head — Unit 220',         bldg:'B', unit:'220',       due:'2026-06-28', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-013', trade:'Electrical', pri:'P3', desc:'Receptacle cover plate slightly misaligned — 114', bldg:'A', unit:'114',       due:'2026-06-29', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-014', trade:'Flooring',   pri:'P3', desc:'LVP end cap trim not fully seated — Unit 212',    bldg:'B', unit:'212',       due:'2026-06-29', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-015', trade:'Plumbing',   pri:'P3', desc:'Vanity faucet drip — Unit 321 second bath',        bldg:'C', unit:'321',       due:'2026-06-30', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-016', trade:'Paint',      pri:'P2', desc:'Ceiling cut-in ragged edge — Bldg A club room',    bldg:'A', unit:'Club',      due:'2026-06-24', status:'open', trackerStep:0, dispatchedAt:null },
+  { id:'PL-017', trade:'Insulation', pri:'P2', desc:'Batt gap at rim joist — Bldg B attic access',     bldg:'B', unit:'Attic',     due:'2026-06-26', status:'open', trackerStep:0, dispatchedAt:null },
+];
+
+let nextId = 17;
+
+const STEPS_EN = ['📤 Dispatched','👍 Acknowledged','🔧 In Progress','✅ Done'];
+const STEPS_ES = ['📤 Despachado','👍 Recibido','🔧 En Progreso','✅ Listo'];
+
+// ── LANGUAGE ──────────────────────────────────
+function toggleLang() {
+  spanishMode = !spanishMode;
+  const btn = document.getElementById('langToggle');
+  if (spanishMode) {
+    btn.textContent = 'EN';
+    btn.classList.add('es-active');
+  } else {
+    btn.textContent = 'ES';
+    btn.classList.remove('es-active');
+  }
+  applyLang();
+  applyPlaceholders();
+  renderItems();
+  renderDispatchPanel();
+  renderOpenPanel();
+  renderTeam();
+  if (mode === 'basic') renderBasic(); else setMode('full');
+  showToast(spanishMode ? 'Modo español activo' : 'English mode active', 'success');
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = spanishMode && el.dataset.es ? el.dataset.es : el.dataset.en;
+  });
+}
+
+function t(en, es) { return spanishMode ? es : en; }
+
+// ── TABS ──────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'dispatch') renderDispatchPanel();
+  if (name === 'open') renderOpenPanel();
+}
+
+// ── RENDER ITEMS ──────────────────────────────
+function renderItems() {
+  const container = document.getElementById('itemsContainer');
+  const tradeFilt = document.getElementById('filterTrade').value;
+  const priFilt = document.getElementById('filterPri').value;
+  const filtered = items.filter(i =>
+    (tradeFilt === 'all' || i.trade === tradeFilt) &&
+    (priFilt === 'all' || i.pri === priFilt)
+  );
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 16px;color:var(--fc-gray-400);font-size:14px;">' + t('No items match filters.','Sin ítems con estos filtros.') + '</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(item => buildItemHTML(item)).join('');
+  updateStats();
+}
+
+function buildItemHTML(item) {
+  const isDispatched = item.status === 'dispatched';
+  const isFlagged = item.status === 'flagged';
+  const priClass = item.pri.toLowerCase();
+  const priBadge = item.pri === 'P1'
+    ? `<span class="priority-badge p1-badge">${t('P1 Critical','P1 Crítico')}</span>`
+    : item.pri === 'P2'
+    ? `<span class="priority-badge p2-badge">${t('P2 Standard','P2 Estándar')}</span>`
+    : `<span class="priority-badge p3-badge">${t('P3 Minor','P3 Menor')}</span>`;
+
+  const checkClass = selectedIds.has(item.id) ? 'item-check checked' : 'item-check';
+  const checkContent = selectedIds.has(item.id) ? '✓' : '';
+
+  const dispatchTag = isDispatched
+    ? `<div class="dispatch-tag">📤 ${t('Dispatched','Despachado')} ${item.dispatchedAt}</div>`
+    : isFlagged
+    ? `<div class="dispatch-tag" style="background:#fef2f2;border-color:#fca5a5;color:var(--fc-red);">⚠️ ${t('Flagged to super — no sub on site','Marcado al super — sin sub')} ${item.dispatchedAt}</div>`
+    : '';
+
+  const steps = spanishMode ? STEPS_ES : STEPS_EN;
+  const trackerHTML = isDispatched ? `
+    <div class="reply-tracker visible">
+      <span class="tracker-label">${t('Reply:','Respuesta:')}</span>
+      <div class="tracker-steps">
+        ${steps.map((s,i) => `<button class="tracker-step ${item.trackerStep > i ? 'done' : item.trackerStep === i ? 'active' : ''}" onclick="advanceTracker('${item.id}',${i})">${s}</button>`).join('')}
+      </div>
+    </div>` : '';
+
+  const actionBtns = isDispatched ? '' : `
+    <div class="item-actions">
+      ${selectMode ? '' : `<button class="action-btn dispatch-btn" onclick="quickDispatch('${item.id}')">${t('Dispatch','Despachar')}</button>`}
+    </div>`;
+
+  return `
+    <div class="punch-item ${priClass}-border ${isDispatched ? 'dispatched-item' : ''}" id="item-${item.id}">
+      <div class="item-header">
+        <div class="${checkClass}" id="check-${item.id}" onclick="toggleSelect('${item.id}')">${checkContent}</div>
+        <div class="item-body">
+          <div class="item-title-row">
+            <span class="item-id">${item.id}</span>
+            ${priBadge}
+          </div>
+          <div class="item-desc">${item.desc}</div>
+          <div class="item-meta">
+            <span class="meta-chip">🏗️ ${item.trade}</span>
+            <span class="meta-chip">🏢 ${t('Bldg','Edif.')} ${item.bldg} — ${item.unit}</span>
+            <span class="meta-chip">👷 AS: ${fld(getAS(item.bldg), t('unassigned','sin asignar'))}</span>
+            <span class="meta-chip">📅 ${item.due}</span>
+          </div>
+          ${dispatchTag}
+        </div>
+      </div>
+      ${trackerHTML}
+      ${actionBtns}
+    </div>`;
+}
+
+// ── SELECT MODE ───────────────────────────────
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  const btn = document.getElementById('selectModeBtn');
+  const countEl = document.getElementById('selectCount');
+  if (selectMode) {
+    btn.textContent = t('Cancel Select','Cancelar');
+    btn.style.background = 'var(--fc-red)';
+    btn.style.color = 'white';
+    btn.style.borderColor = 'var(--fc-red)';
+    document.getElementById('itemsContainer').classList.add('select-mode');
+    countEl.style.display = 'inline';
+  } else {
+    selectedIds.clear();
+    btn.textContent = t('Select to Dispatch','Seleccionar');
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    document.getElementById('itemsContainer').classList.remove('select-mode');
+    countEl.style.display = 'none';
+    hideDispatchBar();
+  }
+  renderItems();
+}
+
+function toggleSelect(id) {
+  if (!selectMode) return;
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  const count = selectedIds.size;
+  document.getElementById('selectCount').textContent = `${count} ${t('selected','seleccionados')}`;
+  document.getElementById('dispatchBarCount').textContent = `${count} ${t('items selected','ítems seleccionados')}`;
+  if (count > 0) showDispatchBar();
+  else hideDispatchBar();
+  // update just this item's checkbox
+  const checkEl = document.getElementById('check-' + id);
+  if (checkEl) {
+    checkEl.classList.toggle('checked', selectedIds.has(id));
+    checkEl.textContent = selectedIds.has(id) ? '✓' : '';
+  }
+}
+
+function showDispatchBar() { document.getElementById('dispatchBar').classList.add('visible'); }
+function hideDispatchBar() { document.getElementById('dispatchBar').classList.remove('visible'); }
+
+function cancelSelect() {
+  selectMode = true; // force reset
+  toggleSelectMode();
+}
+
+// ── QUICK DISPATCH (single item) ──────────────
+function quickDispatch(id) {
+  selectedIds.clear();
+  selectedIds.add(id);
+  openDispatchModal('both');
+}
+
+// ── DISPATCH MODAL ────────────────────────────
+function openDispatchModal(type) {
+  if (selectedIds.size === 0) { showToast(t('No items selected','Sin ítems seleccionados'), 'warn'); return; }
+  currentDispatchType = type;
+
+  const typeLbl = type === 'text' ? t('Text Foreman','Texto Capataz')
+                : type === 'email' ? t('Email Sub Office','Email Oficina')
+                : t('Text + Email','Texto + Email');
+
+  document.getElementById('modalTitle').textContent = `📤 ${t('Dispatch','Despacho')} — ${typeLbl}`;
+  document.getElementById('modalSub').textContent = t('Review by trade. Toggle EN/ES per sub.','Revisar por comercio.');
+
+  // Group selected items by trade
+  const byTrade = {};
+  selectedIds.forEach(id => {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    if (!byTrade[item.trade]) byTrade[item.trade] = [];
+    byTrade[item.trade].push(item);
+  });
+
+  const html = Object.entries(byTrade).map(([trade, tradeItems]) => {
+    const sub = getSub(trade);
+    const blockId = trade.replace(/\s/g,'_');
+
+    // No sub on site for this trade — cannot auto-dispatch
+    if (!sub) {
+      return `
+        <div class="sub-dispatch-block" style="border-color:#fca5a5;background:#fef2f2;">
+          <div class="sub-header">
+            <div class="sub-name" style="color:var(--fc-red);">⚠️ ${trade} — ${t('No sub on site','Sin sub en obra')}</div>
+          </div>
+          <div style="font-size:12px;color:#991b1b;margin-bottom:8px;">
+            ${t('This trade is not in the Daily Log roster (demobbed or never logged). Cannot auto-dispatch.','Este comercio no está en el registro diario. No se puede despachar.')}
+          </div>
+          <ul class="sub-items-list" style="padding-left:16px;color:#991b1b;">
+            ${tradeItems.map(i => `<li>${i.id} — ${i.desc.substring(0,50)}${i.desc.length>50?'…':''}</li>`).join('')}
+          </ul>
+          <div style="margin-top:8px;font-size:12px;color:var(--fc-red);font-weight:600;">
+            → ${t('Will flag super to schedule return trip','Se notificará al super para reprogramar')}
+          </div>
+          <div style="margin-top:6px;font-size:12px;color:var(--fc-blue);">
+            ${t('Need this sub added? Contact','¿Agregar este sub? Contacte')} ${fld(PROJECT_ROLES.apm.name,'APM')} (APM · Procore) <a href="tel:${fld(PROJECT_ROLES.apm.phone,'')}" style="color:var(--fc-blue);font-weight:700;text-decoration:none;">📞 ${fld(PROJECT_ROLES.apm.phone,t('no number','sin número'))}</a>
+          </div>
+        </div>`;
+    }
+
+    const useSp = subLang(sub) === 'es';
+    const msgText = buildMessage(trade, tradeItems, sub, useSp, type);
+    const siteStatus = sub.onSiteToday
+      ? `<span style="color:var(--fc-green);">● ${t('on site today','en obra hoy')}</span>`
+      : `<span style="color:var(--fc-amber);">● ${t('last on site','última vez')} ${fld(sub.lastOnSite, t('unknown','desconocido'))}</span>`;
+
+    // Channel availability — placeholders, never undefined
+    const hasPhone = fld(sub.phone, '') !== '';
+    const hasEmail = fld(sub.email, '') !== '';
+    const phoneStr = hasPhone ? '📱 ' + sub.phone : '📱 ' + t('no phone on file','sin teléfono');
+    const emailStr = hasEmail ? '📧 ' + sub.email : '📧 ' + t('no email on file','sin correo');
+    let contactLine = '';
+    if (type === 'text')  contactLine = phoneStr;
+    else if (type === 'email') contactLine = emailStr;
+    else contactLine = phoneStr + ' · ' + emailStr;
+
+    // Warn if the chosen channel has no target, but still render
+    let channelWarn = '';
+    if ((type === 'text' && !hasPhone) || (type === 'email' && !hasEmail) || (type === 'both' && !hasPhone && !hasEmail)) {
+      channelWarn = `<div style="font-size:11px;color:var(--fc-amber);margin-top:3px;">⚠️ ${t('No target for this channel — will report and hold','Sin destino — se reportará y retendrá')}</div>`;
+    }
+
+    return `
+      <div class="sub-dispatch-block" id="block-${blockId}">
+        <div class="sub-header">
+          <div>
+            <div class="sub-name">${fld(sub.name, t('Unnamed sub','Sub sin nombre'))}</div>
+            <div style="font-size:11px;color:var(--fc-gray-400);">${contactLine}</div>
+            <div style="font-size:11px;margin-top:2px;">${siteStatus}</div>
+            ${channelWarn}
+          </div>
+          <span class="sub-lang-pill ${useSp ? 'es' : ''}" id="pill-${blockId}" onclick="toggleSubLang('${trade}')">${useSp ? 'ES' : 'EN'}</span>
+        </div>
+        <div class="msg-preview" id="msg-${blockId}">${msgText}</div>
+        <ul class="sub-items-list" style="padding-left:16px">
+          ${tradeItems.map(i => `<li>${i.id} — ${i.desc.substring(0,50)}${i.desc.length>50?'…':''}</li>`).join('')}
+        </ul>
+      </div>`;
+  }).join('');
+
+  document.getElementById('modalBody').innerHTML = html || '<p style="color:var(--fc-gray-400);text-align:center;padding:20px;">No items.</p>';
+  document.getElementById('dispatchModal').classList.add('visible');
+}
+
+function buildMessage(trade, tradeItems, sub, spanish, type) {
+  const date = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const fm = fld(sub && sub.foreman, spanish ? 'capataz' : 'Foreman');
+  if (spanish) {
+    const lines = tradeItems.map(i => `  • ${i.id}: ${i.desc} (Edif. ${i.bldg} – ${i.unit}, ${i.pri})`).join('\n');
+    return `Hola ${fm},\n\nFieldComm – Cypress Pointe Ph II (${date})\n\nPendientes de ${trade}:\n${lines}\n\nFavor confirmar recibo y ETA. "En eso" es suficiente.\n\n– Equipo FieldComm`;
+  } else {
+    const lines = tradeItems.map(i => `  • ${i.id}: ${i.desc} (Bldg ${i.bldg} – ${i.unit}, ${i.pri})`).join('\n');
+    return `Hi ${fm},\n\nFieldComm – Cypress Pointe Ph II (${date})\n\n${trade} punch items:\n${lines}\n\nPlease confirm receipt and ETA. "On it" is fine.\n\n— The FieldComm Team`;
+  }
+}
+
+let subLangOverride = {};
+function toggleSubLang(trade) {
+  const key = trade.replace(/\s/g,'_');
+  const sub = getSub(trade);
+  if (!sub) return;
+  const currentSp = subLangOverride[trade] !== undefined ? subLangOverride[trade] : subLang(sub) === 'es';
+  const newSp = !currentSp;
+  subLangOverride[trade] = newSp;
+
+  const pill = document.getElementById('pill-' + key);
+  const msgEl = document.getElementById('msg-' + key);
+  const tradeItems = items.filter(i => selectedIds.has(i.id) && i.trade === trade);
+  if (pill) { pill.textContent = newSp ? 'ES' : 'EN'; pill.classList.toggle('es', newSp); }
+  if (msgEl) msgEl.textContent = buildMessage(trade, tradeItems, sub, newSp, currentDispatchType);
+}
+
+function closeModal() {
+  document.getElementById('dispatchModal').classList.remove('visible');
+  subLangOverride = {};
+}
+
+function confirmDispatch() {
+  const now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  let successCount = 0;
+  let failCount = 0;
+  let flaggedCount = 0;
+
+  selectedIds.forEach(id => {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    // No sub on site — cannot dispatch, flag to super instead (fail-forward)
+    if (!getSub(item.trade)) {
+      item.status = 'flagged';
+      item.dispatchedAt = now;
+      flaggedCount++;
+      return;
+    }
+    // Simulate send — ~95% success rate for demo
+    const sent = Math.random() > 0.05;
+    if (sent) {
+      item.status = 'dispatched';
+      item.dispatchedAt = now;
+      item.trackerStep = 0;
+      successCount++;
+    } else {
+      failCount++;
+    }
+  });
+
+  closeModal();
+
+  // Fail-forward-and-report: every outcome closes its loop visibly
+  const parts = [];
+  if (successCount > 0) parts.push(`✅ ${successCount} ${t('sent','enviados')}`);
+  if (flaggedCount > 0) parts.push(`⚠️ ${flaggedCount} ${t('flagged to super (no sub on site)','marcados al super (sin sub)')}`);
+  if (failCount > 0) parts.push(`❌ ${failCount} ${t('failed — copied to clipboard, paste manually','fallidos — copiados, pegar manual')}`);
+
+  const toastType = failCount > 0 ? 'error' : flaggedCount > 0 ? 'warn' : 'success';
+  showToast(parts.join(' · ') + ` (${now})`, toastType);
+
+  selectedIds.clear();
+  if (selectMode) { selectMode = true; toggleSelectMode(); } else { hideDispatchBar(); }
+  updateStats();
+  renderItems();
+  renderDispatchPanel();
+}
+
+// ── TRACKER ───────────────────────────────────
+function advanceTracker(id, step) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.trackerStep = step + 1 < 4 ? step + 1 : step;
+  const labels = spanishMode ? STEPS_ES : STEPS_EN;
+  const label = labels[item.trackerStep] || labels[3];
+  showToast(`${item.id} → ${label}`, 'success');
+  if (item.trackerStep === 3) {
+    item.status = 'done';
+    showToast(`✅ ${item.id} ${t('closed — WCA logged','cerrado — WCA registrado')}`, 'success');
+  }
+  renderItems();
+  renderDispatchPanel();
+}
+
+// ── ADD ITEM ──────────────────────────────────
+function toggleAddForm() {
+  const form = document.getElementById('addForm');
+  form.classList.toggle('visible');
+  if (form.classList.contains('visible')) {
+    // set default due date
+    const d = new Date(); d.setDate(d.getDate() + 5);
+    document.getElementById('newDue').value = d.toISOString().split('T')[0];
+  }
+}
+
+function addItem() {
+  const desc = document.getElementById('newDesc').value.trim();
+  if (!desc) { showToast(t('Enter a description','Ingrese descripción'), 'warn'); return; }
+  const trade = document.getElementById('newTrade').value;
+  const pri = document.getElementById('newPri').value;
+  const bldg = document.getElementById('newBldg').value.trim() || '?';
+  const unit = document.getElementById('newUnit').value.trim() || '?';
+  const due = document.getElementById('newDue').value || '—';
+
+  items.unshift({ id:`PL-${String(nextId++).padStart(3,'0')}`, trade, pri, desc, bldg, unit, due, status:'open', trackerStep:0, dispatchedAt:null });
+  toggleAddForm();
+  document.getElementById('newDesc').value = '';
+  updateStats();
+  renderItems();
+  showToast(t('Item added','Ítem agregado'), 'success');
+}
+
+// ── DISPATCH PANEL ────────────────────────────
+function renderDispatchPanel() {
+  const dispatched = items.filter(i => i.status === 'dispatched' || i.status === 'done' || i.status === 'flagged');
+  const container = document.getElementById('dispatchedContainer');
+  const empty = document.getElementById('noDispatched');
+
+  if (dispatched.length === 0) {
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  container.innerHTML = dispatched.map(item => buildItemHTML(item)).join('');
+}
+
+// ── ALL OPEN PANEL ────────────────────────────
+function renderOpenPanel() {
+  const open = items.filter(i => i.status === 'open');
+  const container = document.getElementById('openContainer');
+  if (open.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--fc-gray-400);">${t('All items dispatched!','¡Todos despachados!')}</div>`;
+    return;
+  }
+  // Group by trade
+  const byTrade = {};
+  open.forEach(i => { if (!byTrade[i.trade]) byTrade[i.trade] = []; byTrade[i.trade].push(i); });
+  container.innerHTML = Object.entries(byTrade).map(([trade, tradeItems]) => `
+    <div class="section-header">${trade} (${tradeItems.length})</div>
+    ${tradeItems.map(item => buildItemHTML(item)).join('')}
+  `).join('');
+}
+
+// ── STATS ─────────────────────────────────────
+function updateStats() {
+  const open = items.filter(i => i.status === 'open');
+  document.getElementById('stat-p1').textContent = open.filter(i => i.pri === 'P1').length;
+  document.getElementById('stat-p2').textContent = open.filter(i => i.pri === 'P2').length;
+  document.getElementById('stat-p3').textContent = open.filter(i => i.pri === 'P3').length;
+  document.getElementById('stat-dis').textContent = items.filter(i => i.status === 'dispatched').length;
+  if (document.getElementById('rosterSummary')) renderRosterBar();
+}
+
+// ── TOAST ─────────────────────────────────────
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.classList.remove('show'); }, 3200);
+}
+
+// ── EXIT ──────────────────────────────────────
+function exitDemo() {
+  if (confirm(t('Exit demo?','¿Salir del demo?'))) {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#475569;font-size:18px;">FC-PUNCH-001 Demo closed.</div>';
+  }
+}
+
+// ── ROSTER BAR (Procore source → Daily Report view) ───────────
+function renderRosterBar() {
+  const summaryEl = document.getElementById('rosterSummary');
+  const detail = document.getElementById('rosterDetail');
+  if (!summaryEl) return;
+
+  const total = DAILY_LOG_ROSTER.length;
+
+  // Empty-roster state — runs, never crashes
+  if (total === 0) {
+    summaryEl.innerHTML = `<span style="color:var(--fc-amber);">⚠️ ${t('No subs loaded — import Procore commitments','Sin subs — importar Procore')}</span>`;
+    detail.innerHTML = `<div style="color:var(--fc-gray-400);padding:6px 0;">${t('No contracted subs found. Connect a Procore Commitments export (contracts + POs) to populate the directory. Dispatch will flag all items to super until then.','Sin subs contratados. Conecte una exportación de Procore.')}</div>`;
+    return;
+  }
+
+  const today = DAILY_LOG_ROSTER.filter(s => s.onSiteToday).length;
+  summaryEl.innerHTML =
+    `${total} ${t('from Procore (active + open work)','de Procore (activos + trabajo abierto)')} · ${today} ${t('on site today','en obra hoy')} · ${t('synced','sinc.')} ${ROSTER_SYNCED}`;
+
+  const punchTrades = [...new Set(items.filter(i => i.status === 'open').map(i => i.trade))];
+  const missing = punchTrades.filter(tr => !getSub(tr));
+  let rows = DAILY_LOG_ROSTER.map(s => {
+    const dot = s.onSiteToday ? '<span style="color:var(--fc-green)">●</span>' : '<span style="color:var(--fc-amber)">●</span>';
+    const status = s.onSiteToday ? t('on site today','en obra hoy') : `${t('last','última')} ${fld(s.lastOnSite, '—')}`;
+    const lp = subLang(s);
+    const langPill = lp === 'es'
+      ? '<span style="background:#ccfbf1;color:#0f766e;font-size:10px;padding:1px 5px;border-radius:4px;">ES</span>'
+      : '<span style="background:#dbeafe;color:#2563eb;font-size:10px;padding:1px 5px;border-radius:4px;">EN</span>';
+
+    // Foreman cell — editable inline (super maintains the list)
+    let fmCell;
+    if (editState.type === 'foreman' && editState.key === s.trade) {
+      fmCell = `<span style="display:inline-flex;gap:4px;align-items:center;">
+        <input id="editInput" type="text" value="${fld(s.foreman,'')}" placeholder="${t('foreman name','nombre capataz')}" style="font-size:16px;padding:3px 6px;border:1px solid var(--fc-blue);border-radius:5px;width:120px;">
+        <button onclick="saveForeman('${s.trade}')" style="font-size:11px;background:var(--fc-green);color:white;border:none;border-radius:5px;padding:4px 8px;min-height:30px;cursor:pointer;">${t('Save','Guardar')}</button>
+        <button onclick="cancelEdit()" style="font-size:11px;background:var(--fc-gray-100);border:none;border-radius:5px;padding:4px 8px;min-height:30px;cursor:pointer;">✕</button>
+      </span>`;
+    } else {
+      const fmName = fld(s.foreman, t('no foreman','sin capataz'));
+      fmCell = `<span style="color:var(--fc-gray-400);">(${fmName}) <span onclick="startEdit('foreman','${s.trade}')" style="cursor:pointer;color:var(--fc-blue);" title="${t('change foreman','cambiar capataz')}">✎</span></span>`;
+    }
+
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--fc-gray-100);gap:8px;flex-wrap:wrap;">
+      <span>${dot} <strong>${s.trade}</strong> — ${fld(s.name, t('Unnamed','Sin nombre'))} ${fmCell}</span>
+      <span style="font-size:11px;color:var(--fc-gray-400);">${langPill} ${status}</span></div>`;
+  }).join('');
+  if (missing.length > 0) {
+    rows += `<div style="margin-top:8px;padding:8px;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;color:#991b1b;font-size:11px;">
+      ⚠️ ${t('Open punch items exist for','Hay ítems para')}: <strong>${missing.join(', ')}</strong> — ${t('no sub on site. These flag to super on dispatch.','sin sub en obra. Se marcan al super.')}</div>`;
+  }
+  detail.innerHTML = rows;
+}
+
+function toggleRosterDetail() {
+  const d = document.getElementById('rosterDetail');
+  const tog = document.getElementById('rosterToggle');
+  const open = d.style.display === 'block';
+  d.style.display = open ? 'none' : 'block';
+  tog.textContent = open ? '▸' : '▾';
+}
+
+// ── PROJECT TEAM + CONTACT-FOR-HELP ───────────
+function renderTeam() {
+  const sumEl = document.getElementById('teamSummary');
+  const detEl = document.getElementById('teamDetail');
+  if (!sumEl) return;
+  const sup = PROJECT_ROLES.super, apm = PROJECT_ROLES.apm;
+  sumEl.innerHTML = `${t('Super','Super')} ${fld(sup.name,'—')} · APM ${fld(apm.name,'—')}`;
+
+  const contactRow = (r) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--fc-gray-100);gap:8px;flex-wrap:wrap;">
+      <span><strong>${r.role}</strong> — ${fld(r.name,t('not set','sin asignar'))}<br><span style="font-size:11px;color:var(--fc-gray-400);">${r.note}</span></span>
+      <a href="tel:${fld(r.phone,'')}" style="font-size:12px;color:var(--fc-blue);text-decoration:none;font-weight:600;white-space:nowrap;">📞 ${fld(r.phone,t('no number','sin número'))}</a>
+    </div>`;
+
+  // Area Supers by zone — editable
+  const zoneRows = Object.keys(ZONES).map(b => {
+    let cell;
+    if (editState.type === 'as' && editState.key === b) {
+      cell = `<span style="display:inline-flex;gap:4px;align-items:center;">
+        <input id="editInput" type="text" value="${getAS(b)}" placeholder="${t('AS name','nombre AS')}" style="font-size:16px;padding:3px 6px;border:1px solid var(--fc-blue);border-radius:5px;width:110px;">
+        <button onclick="saveAS('${b}')" style="font-size:11px;background:var(--fc-green);color:white;border:none;border-radius:5px;padding:4px 8px;min-height:30px;cursor:pointer;">${t('Save','Guardar')}</button>
+        <button onclick="cancelEdit()" style="font-size:11px;background:var(--fc-gray-100);border:none;border-radius:5px;padding:4px 8px;min-height:30px;cursor:pointer;">✕</button>
+      </span>`;
+    } else {
+      cell = `${fld(getAS(b), t('unassigned','sin asignar'))} <span onclick="startEdit('as','${b}')" style="cursor:pointer;color:var(--fc-blue);" title="${t('change AS','cambiar AS')}">✎</span>`;
+    }
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--fc-gray-100);gap:8px;flex-wrap:wrap;">
+      <span><strong>${t('Bldg','Edif.')} ${b}</strong> ${t('Area Super','Super de Área')}:</span>
+      <span style="color:var(--fc-gray-600);">${cell}</span></div>`;
+  }).join('');
+
+  detEl.innerHTML = `
+    <div style="font-weight:700;color:var(--fc-gray-600);margin-bottom:4px;">${t('Need a sub added or fixed? Contact:','¿Necesita corregir la lista? Contacte:')}</div>
+    ${contactRow(sup)}
+    ${contactRow(apm)}
+    <div style="font-weight:700;color:var(--fc-gray-600);margin:10px 0 4px;">${t('Area Supers by zone','Supers de área por zona')}</div>
+    ${zoneRows}`;
+}
+
+function toggleTeamDetail() {
+  const d = document.getElementById('teamDetail');
+  const tog = document.getElementById('teamToggle');
+  const open = d.style.display === 'block';
+  d.style.display = open ? 'none' : 'block';
+  tog.textContent = open ? '▸' : '▾';
+}
+
+// ── INLINE EDIT (foreman / AS) ────────────────
+function startEdit(type, key) {
+  editState = { type, key };
+  renderRosterBar();
+  renderTeam();
+  // keep the relevant detail panel open
+  if (type === 'foreman') { document.getElementById('rosterDetail').style.display = 'block'; document.getElementById('rosterToggle').textContent = '▾'; }
+  if (type === 'as') { document.getElementById('teamDetail').style.display = 'block'; document.getElementById('teamToggle').textContent = '▾'; }
+  const inp = document.getElementById('editInput');
+  if (inp) inp.focus();
+}
+
+function cancelEdit() {
+  editState = { type:null, key:null };
+  renderRosterBar();
+  renderTeam();
+  document.getElementById('rosterDetail').style.display = 'block';
+  document.getElementById('teamDetail').style.display = 'block';
+}
+
+function saveForeman(trade) {
+  const inp = document.getElementById('editInput');
+  const v = inp ? inp.value.trim() : '';
+  const sub = getSub(trade);
+  if (sub) sub.foreman = v;
+  editState = { type:null, key:null };
+  renderRosterBar();
+  document.getElementById('rosterDetail').style.display = 'block';
+  document.getElementById('rosterToggle').textContent = '▾';
+  showToast(`${t('Foreman updated','Capataz actualizado')}${v ? ' → ' + v : ' (' + t('cleared','vacío') + ')'}`, 'success');
+}
+
+function saveAS(bldg) {
+  const inp = document.getElementById('editInput');
+  const v = inp ? inp.value.trim() : '';
+  if (!ZONES[bldg]) ZONES[bldg] = {};
+  ZONES[bldg].as = v;
+  editState = { type:null, key:null };
+  renderTeam();
+  renderItems();
+  document.getElementById('teamDetail').style.display = 'block';
+  document.getElementById('teamToggle').textContent = '▾';
+  showToast(`${t('Area Super updated','Super de área actualizado')}${v ? ' → ' + v : ''}`, 'success');
+}
+
+// ── BASIC MODE ────────────────────────────────
+let mode = 'basic';
+let basicPri = 'P2';
+
+function setMode(m) {
+  mode = m;
+  const basicBtn = document.getElementById('modeBasicBtn');
+  const fullBtn = document.getElementById('modeFullBtn');
+  const hint = document.getElementById('modeHint');
+  const tabs = document.getElementById('tabsRow');
+  const pBasic = document.getElementById('panel-basic');
+
+  // reset all full panels
+  ['panel-field','panel-dispatch','panel-open'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('active');
+  });
+
+  if (m === 'basic') {
+    basicBtn.style.background = 'var(--fc-blue)'; basicBtn.style.color = 'white';
+    fullBtn.style.background = 'transparent'; fullBtn.style.color = 'var(--fc-gray-600)';
+    hint.textContent = t('Just capture items — act on them later.','Solo capture ítems — actúe después.');
+    tabs.style.display = 'none';
+    pBasic.classList.add('active');
+    renderBasic();
+  } else {
+    fullBtn.style.background = 'var(--fc-blue)'; fullBtn.style.color = 'white';
+    basicBtn.style.background = 'transparent'; basicBtn.style.color = 'var(--fc-gray-600)';
+    hint.textContent = t('Subs, dispatch, zones, languages.','Subs, despacho, zonas, idiomas.');
+    tabs.style.display = 'flex';
+    pBasic.classList.remove('active');
+    // restore field tab as active full panel
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-field').classList.add('active');
+    document.getElementById('panel-field').classList.add('active');
+    updateStats(); renderRosterBar(); renderTeam(); renderItems();
+  }
+}
+
+function setBasicPri(p) {
+  basicPri = p;
+  document.querySelectorAll('.bpri').forEach(btn => {
+    const on = btn.dataset.pri === p;
+    btn.style.background = on ? 'var(--fc-blue)' : 'white';
+    btn.style.color = on ? 'white' : 'var(--fc-gray-600)';
+    btn.style.borderColor = on ? 'var(--fc-blue)' : 'var(--fc-gray-200)';
+  });
+}
+
+function addBasicItem() {
+  const descEl = document.getElementById('basicDesc');
+  const locEl = document.getElementById('basicLoc');
+  const desc = descEl.value.trim();
+  if (!desc) { showToast(t('Say or type an item first','Diga o escriba un ítem'), 'warn'); descEl.focus(); return; }
+  const loc = locEl.value.trim();
+  items.unshift({
+    id:`PL-${String(nextId++).padStart(3,'0')}`,
+    trade:'', pri:basicPri, desc:desc, bldg:'', unit:fld(loc, '—'),
+    due:'', status:'open', trackerStep:0, dispatchedAt:null
+  });
+  descEl.value = ''; locEl.value = '';
+  renderBasic();
+  showToast(t('Added','Agregado'), 'success');
+}
+
+function renderBasic() {
+  const open = items.filter(i => i.status !== 'done');
+  const done = items.filter(i => i.status === 'done');
+  document.getElementById('basicOpenCount').textContent = `${open.length} ${t('open','abierto')}`;
+  document.getElementById('basicDoneCount').textContent = `${done.length}`;
+
+  const row = (item, isDone) => {
+    const priColor = item.pri === 'P1' ? 'var(--fc-red)' : item.pri === 'P3' ? 'var(--fc-teal)' : 'var(--fc-amber)';
+    const loc = fld(item.unit, '');
+    const locStr = (loc && loc !== '—') ? ` <span style="color:var(--fc-gray-400);font-size:12px;">· ${loc}</span>` : '';
+    const tradeStr = fld(item.trade, '') ? `<span style="color:var(--fc-gray-400);font-size:12px;">${item.trade} · </span>` : '';
+    return `<div style="background:var(--fc-white);border:1px solid var(--fc-gray-200);border-left:4px solid ${priColor};border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;">
+      <div onclick="toggleDone('${item.id}')" style="width:24px;height:24px;border:2px solid ${isDone ? 'var(--fc-green)' : 'var(--fc-gray-200)'};background:${isDone ? 'var(--fc-green)' : 'white'};color:white;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:1px;">${isDone ? '✓' : ''}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:600;color:${isDone ? 'var(--fc-gray-400)' : 'var(--fc-gray-800)'};text-decoration:${isDone ? 'line-through' : 'none'};">${item.desc}</div>
+        <div style="margin-top:3px;">${tradeStr}<span style="font-size:11px;font-weight:700;color:${priColor};">${item.pri}</span>${locStr}</div>
+      </div>
+    </div>`;
+  };
+
+  const openEl = document.getElementById('basicOpenList');
+  const doneEl = document.getElementById('basicDoneList');
+  openEl.innerHTML = open.length ? open.map(i => row(i, false)).join('')
+    : `<div style="text-align:center;color:var(--fc-gray-400);padding:30px 16px;font-size:14px;">${t('Empty — add your first item above.','Vacío — agregue su primer ítem arriba.')}</div>`;
+  doneEl.innerHTML = done.length ? done.map(i => row(i, true)).join('')
+    : `<div style="color:var(--fc-gray-400);padding:10px 4px;font-size:13px;">${t('Nothing checked off yet.','Nada marcado aún.')}</div>`;
+}
+
+function toggleDone(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.status = item.status === 'done' ? 'open' : 'done';
+  renderBasic();
+  if (item.status === 'done') showToast(`✓ ${t('Done','Listo')}`, 'success');
+}
+
+// ── BASIC VOICE (continuous, 90s, graceful fallback) ──────────
+let recog = null, recogActive = false, voiceTimer = null;
+function basicVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    showToast(t('Voice not available here — type the item','Voz no disponible — escriba el ítem'), 'warn');
+    document.getElementById('basicDesc').focus();
+    return;
+  }
+  if (recogActive) { try { recog.stop(); } catch(e){} return; }
+  try {
+    recog = new SR();
+    recog.continuous = true;
+    recog.interimResults = true;
+    recog.lang = spanishMode ? 'es-US' : 'en-US';
+    recogActive = true;
+    document.getElementById('micBtn').textContent = '⏹';
+    document.getElementById('micBtn').style.background = 'var(--fc-red)';
+    recog.onresult = (e) => {
+      let txt = '';
+      for (let i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript;
+      document.getElementById('basicDesc').value = txt;
+    };
+    recog.onerror = () => { showToast(t('Voice stopped — type instead','Voz detenida — escriba'), 'warn'); stopVoice(); };
+    recog.onend = () => stopVoice();
+    recog.start();
+    voiceTimer = setTimeout(() => { if (recogActive) { try { recog.stop(); } catch(e){} } }, 90000);
+  } catch (err) {
+    showToast(t('Voice unavailable — type the item','Voz no disponible — escriba'), 'warn');
+    stopVoice();
+  }
+}
+function stopVoice() {
+  recogActive = false;
+  if (voiceTimer) clearTimeout(voiceTimer);
+  const b = document.getElementById('micBtn');
+  if (b) { b.textContent = '🎤'; b.style.background = 'var(--fc-teal)'; }
+}
+
+// ── PLACEHOLDER TEXT (translatable) ───────────
+function applyPlaceholders() {
+  const d = document.getElementById('basicDesc');
+  const l = document.getElementById('basicLoc');
+  if (d) d.placeholder = t('Tap mic and talk, or type the item…','Toque el micrófono o escriba el ítem…');
+  if (l) l.placeholder = t('Location (e.g. Bldg A – 204) — optional','Ubicación (opcional)');
+}
+
+// ── INIT ──────────────────────────────────────
+updateStats();
+renderRosterBar();
+renderTeam();
+renderItems();
+applyPlaceholders();
+setMode('basic');
+</script>
+</body>
+</html>
